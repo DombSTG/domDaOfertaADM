@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest add card input textarea badge sonner)",
+      "Bash(npx next:*)"
+    ]
+  }
+}
