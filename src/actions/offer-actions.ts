@@ -4,12 +4,28 @@ import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { sendTelegramMessage } from '@/lib/telegram'
 
 export async function approveOffer(id: string, newTitle: string, copyText: string) {
-  await db
+  const [updatedOffer] = await db
     .update(offers)
     .set({ status: 'approved', title: newTitle, copyText })
     .where(eq(offers.id, id))
+    .returning()
+
+  if (updatedOffer) {
+    try {
+      await sendTelegramMessage({
+        title: updatedOffer.title,
+        oldPrice: updatedOffer.oldPrice,
+        currentPrice: updatedOffer.currentPrice,
+        copyText: updatedOffer.copyText ?? '',
+        url: updatedOffer.originalUrl,
+      })
+    } catch (err) {
+      console.error("Falha ao enviar mensagem para o Telegram:", err)
+    }
+  }
 
   revalidatePath('/')
 }
