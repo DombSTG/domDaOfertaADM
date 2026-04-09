@@ -87,6 +87,31 @@ export async function registerUser(
   return { success: true }
 }
 
+export async function changePassword(
+  _prevState: { error?: string; success?: boolean },
+  formData: FormData
+): Promise<{ error?: string; success?: boolean }> {
+  const session = await getSession()
+  if (!session?.sub) return { error: 'Não autenticado.' }
+
+  const currentPassword = formData.get('currentPassword') as string
+  const newPassword = formData.get('newPassword') as string
+
+  if (!currentPassword || !newPassword) return { error: 'Preencha todos os campos.' }
+  if (newPassword.length < 6) return { error: 'A nova senha deve ter ao menos 6 caracteres.' }
+
+  const [user] = await db.select().from(users).where(eq(users.id, session.sub as string)).limit(1)
+  if (!user) return { error: 'Usuário não encontrado.' }
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash)
+  if (!valid) return { error: 'Senha atual incorreta.' }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12)
+  await db.update(users).set({ passwordHash }).where(eq(users.id, user.id))
+
+  return { success: true }
+}
+
 export async function getSession() {
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value

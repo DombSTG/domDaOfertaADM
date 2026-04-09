@@ -1,0 +1,71 @@
+# Plano de Ação: Atualização Simultânea de Preços
+
+Este plano descreve como atualizar o preço de uma oferta corrigindo a tabela principal e modificando apenas o último registro gravado no histórico de preços. A abordagem utiliza uma transação no banco de dados para garantir a consistência caso ocorra algum erro no processo.
+
+## Passo a Passo
+
+### 1. Iniciar uma Transação no Banco de Dados
+
+Utilizar `db.transaction()` para agrupar as operações. Isso previne que as tabelas `offers` e `price_history` fiquem com dados inconsistentes caso uma das consultas falhe.
+
+### 2. Atualizar a Tabela `offers`
+
+Fazer um `UPDATE` na tabela `offers` aplicando:
+- `newCurrentPrice` (novo preço atual)
+- `newOldPrice` (preço anterior, se houver)
+
+Filtrado pelo ID da oferta (`offerId`).
+
+### 3. Localizar o Último Registro em `price_history`
+
+Executar uma consulta de leitura (`SELECT`) na tabela `price_history` para recuperar apenas o `id` do último registro inserido relacionado àquela oferta.
+
+- **Filtro:** `offerId` igual ao ID fornecido
+- **Ordenação:** Ordem decrescente (`desc`) pela coluna `createdAt`
+- **Limite:** Apenas o primeiro resultado (`findFirst`)
+
+### 4. Atualizar o Registro Específico em `price_history`
+
+Se o registro do passo 3 for encontrado, fazer um `UPDATE` na tabela `price_history` definindo os novos preços, filtrando exclusivamente pelo `id` daquele registro específico recuperado na etapa anterior.
+
+## Implementação de Referência (Drizzle ORM)
+
+```typescript
+import { eq, desc } from "drizzle-orm";
+import { db } from "@/src/db/db";
+import { offers, priceHistory } from "@/src/db/schema";
+
+export async function corrigirPrecoOferta(
+  offerId: string, 
+  newCurrentPrice: string, 
+  newOldPrice: string | null
+) {
+  await db.transaction(async (tx) => {
+    
+    // 1. Atualiza a tabela principal
+    await tx.update(offers)
+      .set({ 
+        currentPrice: newCurrentPrice, 
+        oldPrice: newOldPrice 
+      })
+      .where(eq(offers.id, offerId));
+
+    // 2. Busca o ID do último histórico de preço
+    const latestHistory = await tx.query.priceHistory.findFirst({
+      where: eq(priceHistory.offerId, offerId),
+      orderBy: [desc(priceHistory.createdAt)],
+      columns: { id: true }
+    });
+
+    // 3. Atualiza somente o último histórico, se existir
+    if (latestHistory) {
+      await tx.update(priceHistory)
+        .set({ 
+          currentPrice: newCurrentPrice, 
+          oldPrice: newOldPrice 
+        })
+        .where(eq(priceHistory.id, latestHistory.id));
+    }
+  });
+}
+```

@@ -1,8 +1,10 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { registerUser } from '@/src/actions/auth-actions'
 import { toast } from 'sonner'
+import { KeyRound } from 'lucide-react'
+import { ChangePasswordModal } from '@/src/components/ChangePasswordModal'
 
 type Membro = {
   id: string
@@ -12,6 +14,7 @@ type Membro = {
 
 export function MembrosClient({ membros }: { membros: Membro[] }) {
   const [state, formAction, pending] = useActionState(registerUser, { error: undefined, success: undefined })
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     if (state?.error) toast.error(state.error)
@@ -37,9 +40,18 @@ export function MembrosClient({ membros }: { membros: Membro[] }) {
                 }`}
               >
                 <span className="text-[13px] text-gray-900">{m.email}</span>
-                <span className="text-[11px] text-gray-400">
-                  {new Date(m.createdAt).toLocaleDateString('pt-BR')}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-400">
+                    {new Date(m.createdAt).toLocaleDateString('pt-BR')}
+                  </span>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="p-1.5 rounded-[6px] text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                    title="Alterar senha"
+                  >
+                    <KeyRound size={14} />
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -88,6 +100,8 @@ export function MembrosClient({ membros }: { membros: Membro[] }) {
           </button>
         </form>
       </div>
+
+      <ChangePasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   )
 }
