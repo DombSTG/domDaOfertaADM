@@ -18,7 +18,7 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
-      <div className="fixed left-0 top-0 bottom-0 z-50 w-64 bg-white flex flex-col shadow-xl">
+      <div className="fixed left-0 top-0 bottom-0 z-50 w-64 bg-white flex flex-col shadow-xl pb-14 md:pb-0">
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
           <span className="font-semibold text-gray-800">Menu</span>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
