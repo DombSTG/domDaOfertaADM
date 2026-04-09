@@ -17,7 +17,7 @@ export function OfferDetailDialog({ offer, isOpen, onClose }: OfferDetailDialogP
         <DialogHeader className="px-5 pt-5 pb-0">
           <DialogTitle className="text-[14px] font-semibold text-gray-900">Detalhes da Oferta</DialogTitle>
         </DialogHeader>
-        {offer && <OfferCard offer={offer} />}
+        {offer && <OfferCard offer={offer} onClose={onClose} />}
       </DialogContent>
     </Dialog>
   )

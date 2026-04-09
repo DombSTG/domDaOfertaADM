@@ -10,9 +10,10 @@ import type { Offer } from '@/src/db/schema'
 
 interface OfferCardProps {
   offer: Offer
+  onClose?: () => void
 }
 
-export function OfferCard({ offer }: OfferCardProps) {
+export function OfferCard({ offer, onClose }: OfferCardProps) {
   const [title, setTitle] = useState(offer.title)
   const [copy, setCopy] = useState(offer.copyText ?? '')
   const [isPending, startTransition] = useTransition()
@@ -23,6 +24,7 @@ export function OfferCard({ offer }: OfferCardProps) {
       toast.success('Oferta aprovada!', {
         description: title,
       })
+      onClose?.()
     })
   }
 
@@ -32,6 +34,7 @@ export function OfferCard({ offer }: OfferCardProps) {
       toast.info('Oferta descartada.', {
         description: offer.title,
       })
+      onClose?.()
     })
   }
 
@@ -113,7 +116,7 @@ export function OfferCard({ offer }: OfferCardProps) {
       {/* Ações */}
       <div className="flex gap-2 px-5 pb-5">
         <Button
-          className="flex-1 h-8 text-[13px] bg-gray-900 hover:bg-gray-800 text-white"
+          className="flex-1 h-8 text-[13px] bg-gray-900 hover:bg-gray-800 text-white cursor-pointer"
           onClick={handleApprove}
           disabled={isPending || !title.trim()}
         >
@@ -121,7 +124,7 @@ export function OfferCard({ offer }: OfferCardProps) {
         </Button>
         <Button
           variant="outline"
-          className="flex-1 h-8 text-[13px] text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+          className="flex-1 h-8 text-[13px] text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 cursor-pointer"
           onClick={handleReject}
           disabled={isPending}
         >

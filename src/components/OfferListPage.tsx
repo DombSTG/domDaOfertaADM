@@ -7,9 +7,10 @@ import type { Offer } from '@/src/db/schema'
 
 interface OfferListPageProps {
   offers: Offer[]
+  label?: string
 }
 
-export function OfferListPage({ offers }: OfferListPageProps) {
+export function OfferListPage({ offers, label = 'Pendentes' }: OfferListPageProps) {
   const [selected, setSelected] = useState<Offer | null>(null)
 
   if (offers.length === 0) {
@@ -25,7 +26,7 @@ export function OfferListPage({ offers }: OfferListPageProps) {
       {/* Group header */}
       <div className="flex items-center gap-2 px-6 py-2 border-b border-gray-100 bg-white sticky top-0 z-10">
         <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
-          Pendentes
+          {label}
         </span>
         <span className="text-[11px] font-medium text-gray-400">
           {offers.length}
