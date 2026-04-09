@@ -29,3 +29,24 @@ export const offers = pgTable("offers", {
 
 export type Offer = typeof offers.$inferSelect;
 export type NewOffer = typeof offers.$inferInsert;
+
+export const priceHistory = pgTable("price_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  offerId: uuid("offer_id").notNull().references(() => offers.id, { onDelete: "cascade" }),
+  currentPrice: numeric("current_price", { precision: 10, scale: 2 }).notNull(),
+  oldPrice: numeric("old_price", { precision: 10, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const offersRelations = relations(offers, ({ many }) => ({
+  history: many(priceHistory),
+}));
+
+export const priceHistoryRelations = relations(priceHistory, ({ one }) => ({
+  offer: one(offers, {
+    fields: [priceHistory.offerId],
+    references: [offers.id],
+  }),
+}));
+
+export type PriceHistory = typeof priceHistory.$inferSelect;
