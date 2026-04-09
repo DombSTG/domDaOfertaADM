@@ -5,7 +5,9 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { approveOffer, rejectOffer } from '@/src/actions/offer-actions'
+import { ExternalLink } from 'lucide-react'
+import { Label } from '@/components/ui/label'
+import { approveOffer, rejectOffer, updateOfferPrice } from '@/src/actions/offer-actions'
 import type { Offer } from '@/src/db/schema'
 
 interface OfferCardProps {
@@ -16,6 +18,7 @@ interface OfferCardProps {
 export function OfferCard({ offer, onClose }: OfferCardProps) {
   const [title, setTitle] = useState(offer.title)
   const [copy, setCopy] = useState(offer.copyText ?? '')
+  const [editedPrice, setEditedPrice] = useState(offer.oldPrice ?? '')
   const [isPending, startTransition] = useTransition()
 
   const handleApprove = () => {
@@ -59,9 +62,20 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
       {/* Meta */}
       <div className="px-5 pt-4 pb-3 border-b border-gray-100">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-[11px] font-medium text-gray-500 bg-gray-100 rounded-[4px] px-1.5 py-0.5">
-            {offer.store}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-medium text-gray-500 bg-gray-100 rounded-[4px] px-1.5 py-0.5">
+              {offer.store}
+            </span>
+            <a
+              href={offer.originalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-0.5 text-[11px] text-blue-500 hover:underline"
+            >
+              <ExternalLink size={11} />
+              Abrir na Loja
+            </a>
+          </div>
           <span className="text-[11px] text-gray-400 tabular-nums">
             {new Date(offer.createdAt).toLocaleDateString('pt-BR')}
           </span>
@@ -87,6 +101,33 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
 
       {/* Campos editáveis */}
       <div className="px-5 py-4 flex flex-col gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+            Corrigir Preço da Oferta
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              value={editedPrice}
+              onChange={(e) => setEditedPrice(e.target.value)}
+              disabled={isPending}
+              className="text-[13px] h-8"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              className="h-8 text-[13px] shrink-0"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  await updateOfferPrice(offer.id, editedPrice)
+                  toast.success('Preço atualizado com sucesso!')
+                })
+              }}
+            >
+              Atualizar BD
+            </Button>
+          </div>
+        </div>
         <div className="space-y-1.5">
           <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
             Título do grupo

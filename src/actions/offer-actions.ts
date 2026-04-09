@@ -14,6 +14,16 @@ export async function approveOffer(id: string, newTitle: string, copyText: strin
   revalidatePath('/')
 }
 
+export async function updateOfferPrice(id: string, newPrice: number | string) {
+  const normalized = String(newPrice).replace(',', '.')
+  await db
+    .update(offers)
+    .set({ oldPrice: normalized })
+    .where(eq(offers.id, id))
+
+  revalidatePath('/')
+}
+
 export async function rejectOffer(id: string) {
   await db
     .update(offers)

@@ -14,7 +14,11 @@ export function OfferListItem({ offer, onClick }: OfferListItemProps) {
       className="w-full text-left flex items-center gap-3 px-6 py-[7px] border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors group"
     >
       {/* Status dot */}
-      <div className="h-[7px] w-[7px] rounded-full bg-amber-400 shrink-0" />
+      <div className={`h-[7px] w-[7px] rounded-full shrink-0 ${
+        offer.status === 'approved' ? 'bg-emerald-500' :
+        offer.status === 'rejected' ? 'bg-red-500' :
+        'bg-amber-400'
+      }`} />
 
       {/* Thumbnail */}
       <div className="h-[28px] w-[28px] shrink-0 overflow-hidden rounded-[4px] bg-gray-100 border border-gray-100">
