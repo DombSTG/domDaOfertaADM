@@ -24,6 +24,16 @@ export async function updateOfferPrice(id: string, newPrice: number | string) {
   revalidatePath('/')
 }
 
+export async function updateOfferCurrentPrice(id: string, newPrice: number | string) {
+  const normalized = String(newPrice).replace(',', '.')
+  await db
+    .update(offers)
+    .set({ currentPrice: normalized })
+    .where(eq(offers.id, id))
+
+  revalidatePath('/')
+}
+
 export async function rejectOffer(id: string) {
   await db
     .update(offers)
