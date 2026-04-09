@@ -52,7 +52,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
   return (
     <div className="flex flex-col">
       {/* Imagem */}
-      <div className="w-full h-64 flex items-center justify-center overflow-hidden bg-zinc-50 border-b border-gray-100">
+      <div className="w-full h-48 sm:h-64 flex items-center justify-center overflow-hidden bg-zinc-50 border-b border-gray-100">
         {offer.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -120,7 +120,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
               value={editedPrice}
               onChange={(e) => setEditedPrice(e.target.value)}
               disabled={isPending}
-              className="text-[13px] h-8"
+              className="text-base h-8"
             />
             <Button
               type="button"
@@ -147,7 +147,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
               value={editedCurrentPrice}
               onChange={(e) => setEditedCurrentPrice(e.target.value)}
               disabled={isPending}
-              className="text-[13px] h-8"
+              className="text-base h-8"
             />
             <Button
               type="button"
@@ -174,7 +174,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Edite o título da oferta..."
             disabled={isPending}
-            className="text-[13px] h-8"
+            className="text-base h-8"
           />
         </div>
         <div className="space-y-1.5">
@@ -185,16 +185,16 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
             value={copy}
             onChange={(e) => setCopy(e.target.value)}
             placeholder="Escreva o texto promocional..."
-            className="min-h-[80px] resize-none text-[13px]"
+            className="min-h-[80px] resize-none text-base"
             disabled={isPending}
           />
         </div>
       </div>
 
       {/* Ações */}
-      <div className="flex gap-2 px-5 pb-5">
+      <div className="flex flex-col sm:flex-row gap-2 px-4 sm:px-5 pb-4 sm:pb-5">
         <Button
-          className="flex-1 h-8 text-[13px] bg-gray-900 hover:bg-gray-800 text-white cursor-pointer"
+          className="flex-1 h-10 sm:h-8 text-[13px] bg-gray-900 hover:bg-gray-800 text-white cursor-pointer"
           onClick={handleApprove}
           disabled={isPending || !title.trim()}
         >
@@ -202,7 +202,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
         </Button>
         <Button
           variant="outline"
-          className="flex-1 h-8 text-[13px] text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 cursor-pointer"
+          className="flex-1 h-10 sm:h-8 text-[13px] text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 cursor-pointer"
           onClick={handleReject}
           disabled={isPending}
         >

@@ -21,6 +21,7 @@ export async function approveOffer(id: string, newTitle: string, copyText: strin
         currentPrice: updatedOffer.currentPrice,
         copyText: updatedOffer.copyText ?? '',
         url: updatedOffer.originalUrl,
+        imageUrl: updatedOffer.imageUrl,
       })
     } catch (err) {
       console.error("Falha ao enviar mensagem para o Telegram:", err)

@@ -13,7 +13,7 @@ interface OfferDetailDialogProps {
 export function OfferDetailDialog({ offer, isOpen, onClose }: OfferDetailDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent className="w-full max-w-md p-0 overflow-hidden">
         <DialogHeader className="px-5 pt-5 pb-0">
           <DialogTitle className="text-[14px] font-semibold text-gray-900">Detalhes da Oferta</DialogTitle>
         </DialogHeader>

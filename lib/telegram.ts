@@ -4,6 +4,7 @@ export type TelegramMessageData = {
   currentPrice: string | null;
   copyText: string;
   url: string;
+  imageUrl: string | null;
 }
 
 export async function sendTelegramMessage(data: TelegramMessageData) {
@@ -17,10 +18,10 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
 
   let message = `<b>${data.title}</b>\n\n`;
 
-  if (data.oldPrice) {
-    message += `De R$ ${data.oldPrice} POR R$ ${data.currentPrice}\n\n`;
+  if (data.oldPrice && data.oldPrice !== data.currentPrice) {
+    message += `De <s>R$ ${data.oldPrice}</s> POR <b>R$ ${data.currentPrice}</b>\n\n`;
   } else {
-    message += `POR R$ ${data.currentPrice}\n\n`;
+    message += `POR <b>R$ ${data.currentPrice}</b>\n\n`;
   }
 
   if (data.copyText) {
@@ -28,25 +29,28 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
   }
 
   const replyMarkup = {
-    inline_keyboard: [
-      [
-        {
-          text: "🛒 Ver oferta",
-          url: data.url
-        }
-      ]
-    ]
+    inline_keyboard: [[{ text: "🛒 Ver oferta", url: data.url }]]
   };
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const endpoint = data.imageUrl ? 'sendPhoto' : 'sendMessage';
+
+  const payload: Record<string, unknown> = {
+    chat_id: chatId,
+    parse_mode: 'HTML',
+    reply_markup: replyMarkup
+  };
+
+  if (data.imageUrl) {
+    payload.photo = data.imageUrl;
+    payload.caption = message;
+  } else {
+    payload.text = message;
+  }
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: 'HTML',
-      reply_markup: replyMarkup
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
