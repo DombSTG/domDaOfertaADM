@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
 import { OfferListPage } from '@/src/components/OfferListPage'
