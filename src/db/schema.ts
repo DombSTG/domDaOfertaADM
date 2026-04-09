@@ -7,6 +7,7 @@ import {
   pgEnum,
   text,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const offerStatusEnum = pgEnum("offer_status", [
   "pending",
