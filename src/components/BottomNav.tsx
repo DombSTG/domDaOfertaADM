@@ -6,10 +6,12 @@ import { navLinks } from '@/src/lib/nav-links'
 export function BottomNav() {
   const pathname = usePathname()
 
+  const mobileLinks = navLinks.filter((l) => !l.mobileHidden)
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
       <div className="grid grid-cols-4">
-        {navLinks.map((link) => {
+        {mobileLinks.map((link) => {
           const isActive = pathname === link.href
           return (
             <a

@@ -51,3 +51,12 @@ export const priceHistoryRelations = relations(priceHistory, ({ one }) => ({
 }));
 
 export type PriceHistory = typeof priceHistory.$inferSelect;
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type User = typeof users.$inferSelect;
