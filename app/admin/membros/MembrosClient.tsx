@@ -1,10 +1,11 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
-import { registerUser } from '@/src/actions/auth-actions'
+import { useActionState, useEffect, useState, useTransition } from 'react'
+import { registerUser, deleteUser } from '@/src/actions/auth-actions'
 import { toast } from 'sonner'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Trash2 } from 'lucide-react'
 import { ChangePasswordModal } from '@/src/components/ChangePasswordModal'
+import { useRouter } from 'next/navigation'
 
 type Membro = {
   id: string
@@ -15,6 +16,22 @@ type Membro = {
 export function MembrosClient({ membros }: { membros: Membro[] }) {
   const [state, formAction, pending] = useActionState(registerUser, { error: undefined, success: undefined })
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [isDeleting, startTransition] = useTransition()
+  const router = useRouter()
+
+  function handleDelete(id: string) {
+    startTransition(async () => {
+      const result = await deleteUser(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success('Usuário excluído com sucesso!')
+        setConfirmDeleteId(null)
+        router.refresh()
+      }
+    })
+  }
 
   useEffect(() => {
     if (state?.error) toast.error(state.error)
@@ -51,6 +68,32 @@ export function MembrosClient({ membros }: { membros: Membro[] }) {
                   >
                     <KeyRound size={14} />
                   </button>
+                  {confirmDeleteId === m.id ? (
+                    <>
+                      <button
+                        onClick={() => handleDelete(m.id)}
+                        disabled={isDeleting}
+                        className="px-2 py-1 rounded-[6px] text-[11px] font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                      >
+                        {isDeleting ? '...' : 'Confirmar'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        disabled={isDeleting}
+                        className="px-2 py-1 rounded-[6px] text-[11px] font-medium text-gray-400 hover:bg-gray-100 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(m.id)}
+                      className="p-1.5 rounded-[6px] text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Excluir usuário"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))

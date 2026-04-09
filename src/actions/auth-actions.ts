@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 const COOKIE_NAME = 'auth-token'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 dias em segundos
@@ -109,6 +110,16 @@ export async function changePassword(
   const passwordHash = await bcrypt.hash(newPassword, 12)
   await db.update(users).set({ passwordHash }).where(eq(users.id, user.id))
 
+  return { success: true }
+}
+
+export async function deleteUser(userId: string): Promise<{ error?: string; success?: boolean }> {
+  const session = await getSession()
+  if (!session?.sub) return { error: 'Não autenticado.' }
+  if (session.sub === userId) return { error: 'Não é possível excluir sua própria conta.' }
+
+  await db.delete(users).where(eq(users.id, userId))
+  revalidatePath('/admin/membros')
   return { success: true }
 }
 
