@@ -14,7 +14,7 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
   }
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const chatIds = process.env.TELEGRAM_CHAT_ID.split(',').map(id => id.trim()).filter(Boolean);
 
   let message = `<b>${data.title}</b>\n\n`;
 
@@ -34,27 +34,37 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
 
   const endpoint = data.imageUrl ? 'sendPhoto' : 'sendMessage';
 
-  const payload: Record<string, unknown> = {
-    chat_id: chatId,
-    parse_mode: 'HTML',
-    reply_markup: replyMarkup
-  };
+  const results = await Promise.allSettled(
+    chatIds.map(chatId => {
+      const payload: Record<string, unknown> = {
+        chat_id: chatId,
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup
+      };
 
-  if (data.imageUrl) {
-    payload.photo = data.imageUrl;
-    payload.caption = message;
-  } else {
-    payload.text = message;
-  }
+      if (data.imageUrl) {
+        payload.photo = data.imageUrl;
+        payload.caption = message;
+      } else {
+        payload.text = message;
+      }
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+      return fetch(`https://api.telegram.org/bot${token}/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).then(async res => {
+        if (!res.ok) {
+          const error = await res.text();
+          throw new Error(error);
+        }
+      });
+    })
+  );
+
+  results.forEach((result, i) => {
+    if (result.status === 'rejected') {
+      console.error(`Erro ao enviar mensagem para o grupo ${chatIds[i]}:`, result.reason);
+    }
   });
-
-  if (!res.ok) {
-    const error = await res.text();
-    console.error("Erro ao enviar mensagem para o Telegram:", error);
-  }
 }
