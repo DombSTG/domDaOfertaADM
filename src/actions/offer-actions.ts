@@ -1,8 +1,8 @@
 'use server'
 
 import { db } from '@/src/db/db'
-import { offers } from '@/src/db/schema'
-import { eq } from 'drizzle-orm'
+import { offers, priceHistory } from '@/src/db/schema'
+import { eq, desc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { sendTelegramMessage } from '@/lib/telegram'
 
@@ -38,6 +38,20 @@ export async function updateOfferPrice(id: string, newPrice: number | string) {
     .set({ oldPrice: normalized })
     .where(eq(offers.id, id))
 
+  const [lastHistory] = await db
+    .select()
+    .from(priceHistory)
+    .where(eq(priceHistory.offerId, id))
+    .orderBy(desc(priceHistory.createdAt))
+    .limit(1)
+
+  if (lastHistory) {
+    await db
+      .update(priceHistory)
+      .set({ oldPrice: normalized })
+      .where(eq(priceHistory.id, lastHistory.id))
+  }
+
   revalidatePath('/')
 }
 
@@ -47,6 +61,20 @@ export async function updateOfferCurrentPrice(id: string, newPrice: number | str
     .update(offers)
     .set({ currentPrice: normalized })
     .where(eq(offers.id, id))
+
+  const [lastHistory] = await db
+    .select()
+    .from(priceHistory)
+    .where(eq(priceHistory.offerId, id))
+    .orderBy(desc(priceHistory.createdAt))
+    .limit(1)
+
+  if (lastHistory) {
+    await db
+      .update(priceHistory)
+      .set({ currentPrice: normalized })
+      .where(eq(priceHistory.id, lastHistory.id))
+  }
 
   revalidatePath('/')
 }
