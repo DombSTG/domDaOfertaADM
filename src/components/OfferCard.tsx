@@ -134,7 +134,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
                 });
               }}
             >
-              Atualizar BD
+              Atualizar
             </Button>
           </div>
         </div>
@@ -161,13 +161,13 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
                 });
               }}
             >
-              Atualizar BD
+              Atualizar
             </Button>
           </div>
         </div>
         <div className="space-y-1.5">
           <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Título do grupo
+            Título
           </label>
           <Input
             value={title}
@@ -179,7 +179,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
         </div>
         <div className="space-y-1.5">
           <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Copy para o grupo
+            Texto da mensagem
           </label>
           <Textarea
             value={copy}
