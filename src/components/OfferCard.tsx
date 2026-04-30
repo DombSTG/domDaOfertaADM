@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,13 +53,14 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
   return (
     <div className="flex flex-col">
       {/* Imagem */}
-      <div className="w-full h-48 sm:h-64 flex items-center justify-center overflow-hidden bg-zinc-50 border-b border-gray-100">
+      <div className="w-full h-48 sm:h-64 relative flex items-center justify-center overflow-hidden bg-zinc-50 border-b border-gray-100">
         {offer.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={offer.imageUrl}
             alt={offer.title}
-            className="max-h-full max-w-full object-contain"
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 500px"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-[13px] text-gray-400">

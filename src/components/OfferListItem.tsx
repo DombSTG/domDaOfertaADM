@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { Offer } from '@/src/db/schema'
 
 interface OfferListItemProps {
@@ -21,13 +22,14 @@ export function OfferListItem({ offer, onClick }: OfferListItemProps) {
       }`} />
 
       {/* Thumbnail */}
-      <div className="h-[28px] w-[28px] shrink-0 overflow-hidden rounded-[4px] bg-gray-100 border border-gray-100">
+      <div className="h-[28px] w-[28px] shrink-0 overflow-hidden rounded-[4px] bg-gray-100 border border-gray-100 relative">
         {offer.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={offer.imageUrl}
             alt={offer.title}
-            className="h-full w-full object-contain"
+            fill
+            className="object-contain"
+            sizes="28px"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-300">
