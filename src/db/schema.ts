@@ -3,6 +3,7 @@ import {
   uuid,
   varchar,
   numeric,
+  integer,
   timestamp,
   pgEnum,
   text,
@@ -18,6 +19,7 @@ export const offerStatusEnum = pgEnum("offer_status", [
 export const offers = pgTable("offers", {
   id: uuid("id").primaryKey().defaultRandom(),
   store: varchar("store", { length: 100 }).notNull(),
+  category: varchar("category", { length: 100 }),
   title: varchar("title", { length: 500 }).notNull(),
   currentPrice: numeric("current_price", { precision: 10, scale: 2 }).notNull(),
   oldPrice: numeric("old_price", { precision: 10, scale: 2 }),
@@ -25,7 +27,10 @@ export const offers = pgTable("offers", {
   imageUrl: varchar("image_url", { length: 2048 }),
   status: offerStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  approvedAt: timestamp("approved_at"),
   copyText: text("copy_text"),
+  rating: numeric("rating", { precision: 3, scale: 1 }),
+  reviews: integer("reviews"),
 });
 
 export type Offer = typeof offers.$inferSelect;

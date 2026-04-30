@@ -9,7 +9,7 @@ import { sendTelegramMessage } from '@/lib/telegram'
 export async function approveOffer(id: string, newTitle: string, copyText: string) {
   const [updatedOffer] = await db
     .update(offers)
-    .set({ status: 'approved', title: newTitle, copyText })
+    .set({ status: 'approved', title: newTitle, copyText, approvedAt: new Date() })
     .where(eq(offers.id, id))
     .returning()
 
