@@ -87,3 +87,35 @@ export async function rejectOffer(id: string) {
 
   revalidatePath('/')
 }
+
+export async function createOffer(data: {
+  store: string
+  title: string
+  currentPrice: string
+  oldPrice: string
+  originalUrl: string
+  imageUrl: string
+  category: string
+}) {
+  const currentPrice = data.currentPrice.replace(',', '.')
+  const oldPrice = data.oldPrice ? data.oldPrice.replace(',', '.') : null
+
+  const [newOffer] = await db.insert(offers).values({
+    store: data.store,
+    title: data.title,
+    currentPrice,
+    oldPrice,
+    originalUrl: data.originalUrl,
+    imageUrl: data.imageUrl || null,
+    category: data.category || null,
+    status: 'pending',
+  }).returning({ id: offers.id })
+
+  await db.insert(priceHistory).values({
+    offerId: newOffer.id,
+    currentPrice,
+    oldPrice,
+  })
+
+  revalidatePath('/')
+}

@@ -1,5 +1,6 @@
 import { SidebarNav } from "@/src/components/SidebarNav";
 import { BottomNav } from "@/src/components/BottomNav";
+import { MobileAddButton } from "@/src/components/MobileAddButton";
 
 export default function AdminLayout({
   children,
@@ -28,6 +29,7 @@ export default function AdminLayout({
       </div>
 
       <BottomNav />
+      <MobileAddButton />
     </div>
   );
 }
