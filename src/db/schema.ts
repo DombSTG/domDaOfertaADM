@@ -24,6 +24,7 @@ export const offers = pgTable("offers", {
   currentPrice: numeric("current_price", { precision: 10, scale: 2 }).notNull(),
   oldPrice: numeric("old_price", { precision: 10, scale: 2 }),
   originalUrl: varchar("original_url", { length: 2048 }).notNull().unique(),
+  affiliateUrl: varchar("affiliate_url", { length: 2048 }),
   imageUrl: varchar("image_url", { length: 2048 }),
   status: offerStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
