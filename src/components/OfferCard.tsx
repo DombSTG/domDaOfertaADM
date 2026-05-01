@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,16 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
     offer.currentPrice ?? ""
   );
   const [isPending, startTransition] = useTransition();
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResizeTitle = (el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  };
+
+  useEffect(() => {
+    if (titleRef.current) autoResizeTitle(titleRef.current);
+  }, []);
 
   const handleApprove = () => {
     startTransition(async () => {
@@ -171,12 +181,17 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
           <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
             Título
           </label>
-          <Input
+          <Textarea
+            ref={titleRef}
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              autoResizeTitle(e.target);
+            }}
             placeholder="Edite o título da oferta..."
             disabled={isPending}
-            className="text-base h-8"
+            className="min-h-[32px] resize-none overflow-hidden text-base leading-snug py-1.5"
+            rows={1}
           />
         </div>
         <div className="space-y-1.5">
