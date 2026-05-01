@@ -19,7 +19,7 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
   let message = `<b>${data.title}</b>\n\n`;
 
   if (data.oldPrice && data.oldPrice !== data.currentPrice) {
-    message += `De <s>R$ ${data.oldPrice}</s> POR <b>R$ ${data.currentPrice}</b>\n\n`;
+    message += `De <s>R$ ${data.oldPrice}</s> | POR <b>R$ ${data.currentPrice}</b>\n\n`;
   } else {
     message += `POR <b>R$ ${data.currentPrice}</b>\n\n`;
   }

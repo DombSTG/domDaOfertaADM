@@ -20,7 +20,7 @@ export async function approveOffer(id: string, newTitle: string, copyText: strin
         oldPrice: updatedOffer.oldPrice,
         currentPrice: updatedOffer.currentPrice,
         copyText: updatedOffer.copyText ?? '',
-        url: updatedOffer.originalUrl,
+        url: updatedOffer.affiliateUrl ?? updatedOffer.originalUrl,
         imageUrl: updatedOffer.imageUrl,
       })
     } catch (err) {
