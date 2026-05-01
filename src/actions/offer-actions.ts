@@ -79,6 +79,15 @@ export async function updateOfferCurrentPrice(id: string, newPrice: number | str
   revalidatePath('/')
 }
 
+export async function updateOfferAffiliateUrl(id: string, affiliateUrl: string) {
+  await db
+    .update(offers)
+    .set({ affiliateUrl: affiliateUrl || null })
+    .where(eq(offers.id, id))
+
+  revalidatePath('/')
+}
+
 export async function rejectOffer(id: string) {
   await db
     .update(offers)

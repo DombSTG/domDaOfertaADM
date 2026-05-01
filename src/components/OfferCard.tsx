@@ -13,6 +13,7 @@ import {
   rejectOffer,
   updateOfferPrice,
   updateOfferCurrentPrice,
+  updateOfferAffiliateUrl,
 } from "@/src/actions/offer-actions";
 import type { Offer } from "@/src/db/schema";
 
@@ -28,6 +29,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
   const [editedCurrentPrice, setEditedCurrentPrice] = useState(
     offer.currentPrice ?? ""
   );
+  const [affiliateUrl, setAffiliateUrl] = useState(offer.affiliateUrl ?? "");
   const [isPending, startTransition] = useTransition();
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
@@ -137,7 +139,7 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
             <Button
               type="button"
               variant="secondary"
-              className="h-8 text-[13px] shrink-0"
+              className="h-8 text-[13px] shrink-0 cursor-pointer"
               disabled={isPending}
               onClick={() => {
                 startTransition(async () => {
@@ -164,12 +166,40 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
             <Button
               type="button"
               variant="secondary"
-              className="h-8 text-[13px] shrink-0"
+              className="h-8 text-[13px] shrink-0 cursor-pointer"
               disabled={isPending}
               onClick={() => {
                 startTransition(async () => {
                   await updateOfferCurrentPrice(offer.id, editedCurrentPrice);
                   toast.success("Preço atualizado com sucesso!");
+                });
+              }}
+            >
+              Atualizar
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+            Link de Afiliado
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              value={affiliateUrl}
+              onChange={(e) => setAffiliateUrl(e.target.value)}
+              disabled={isPending}
+              placeholder="https://..."
+              className="text-base h-8"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              className="h-8 text-[13px] shrink-0 cursor-pointer"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  await updateOfferAffiliateUrl(offer.id, affiliateUrl);
+                  toast.success("Link de afiliado atualizado!");
                 });
               }}
             >
