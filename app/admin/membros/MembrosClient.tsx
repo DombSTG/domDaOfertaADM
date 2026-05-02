@@ -16,12 +16,12 @@ type Membro = {
 }
 
 const AVATAR_COLORS = [
-  'oklch(0.55 0.18 290)',
+  'var(--accent)',
   'oklch(0.55 0.16 150)',
   'oklch(0.55 0.18 25)',
   'oklch(0.55 0.15 220)',
   'oklch(0.6 0.15 60)',
-  'oklch(0.5 0.18 310)',
+  '#0b4fae',
 ]
 
 function avatarColor(email: string): string {

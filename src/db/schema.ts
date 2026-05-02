@@ -29,6 +29,7 @@ export const offers = pgTable("offers", {
   status: offerStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   approvedAt: timestamp("approved_at"),
+  rejectedAt: timestamp("rejected_at"),
   copyText: text("copy_text"),
   rating: numeric("rating", { precision: 3, scale: 1 }),
   reviews: integer("reviews"),

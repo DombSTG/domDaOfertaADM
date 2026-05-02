@@ -30,10 +30,10 @@ export function BottomNav({ counts = {} }: BottomNavProps) {
                 key={link.href}
                 href={link.href}
                 className={`relative flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
-                  isActive ? 'text-violet-600' : 'text-gray-400'
+                  isActive ? 'text-blue-600' : 'text-gray-400'
                 }`}
               >
-                <span className={`relative ${isActive ? 'text-violet-600' : 'text-gray-400'}`}>
+                <span className={`relative ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>
                   {link.icon}
                   {count > 0 && (
                     <span className={`absolute -top-1 -right-1.5 text-[9px] font-bold px-1 py-px rounded-full leading-none ${

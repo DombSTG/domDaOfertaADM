@@ -20,9 +20,13 @@ export default function LoginPage() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="h-7 w-7 rounded-[6px] bg-violet-600 flex items-center justify-center shrink-0">
-              <span className="text-white text-[12px] font-bold leading-none">D</span>
-            </div>
+            <img
+              src="/dom-logo.svg"
+              alt="Dom da Oferta"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-[6px] shrink-0"
+            />
             <span className="text-[15px] font-semibold text-gray-900">Dom da Oferta</span>
           </div>
 
@@ -40,7 +44,7 @@ export default function LoginPage() {
                 type="email"
                 required
                 autoComplete="email"
-                className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="seu@email.com"
               />
             </div>
@@ -55,7 +59,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 autoComplete="current-password"
-                className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
             </div>
@@ -63,7 +67,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={pending}
-              className="w-full py-2 px-4 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-medium rounded-[8px] transition-colors"
+              className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-medium rounded-[8px] transition-colors"
             >
               {pending ? 'Entrando...' : 'Entrar'}
             </button>

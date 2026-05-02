@@ -1,14 +1,35 @@
 
 export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
-import { offers } from '@/src/db/schema'
+import { offers, users } from '@/src/db/schema'
 import { eq } from 'drizzle-orm'
 import { OfferListPage } from '@/src/components/OfferListPage'
 
 export default async function Aprovadas() {
   const approvedOffers = await db
-    .select()
+    .select({
+      id: offers.id,
+      store: offers.store,
+      category: offers.category,
+      title: offers.title,
+      currentPrice: offers.currentPrice,
+      oldPrice: offers.oldPrice,
+      originalUrl: offers.originalUrl,
+      affiliateUrl: offers.affiliateUrl,
+      imageUrl: offers.imageUrl,
+      status: offers.status,
+      createdAt: offers.createdAt,
+      approvedAt: offers.approvedAt,
+      rejectedAt: offers.rejectedAt,
+      copyText: offers.copyText,
+      rating: offers.rating,
+      reviews: offers.reviews,
+      approvedBy: offers.approvedBy,
+      rejectedBy: offers.rejectedBy,
+      userEmail: users.email,
+    })
     .from(offers)
+    .leftJoin(users, eq(offers.approvedBy, users.id))
     .where(eq(offers.status, 'approved'))
     .orderBy(offers.createdAt)
 

@@ -18,9 +18,9 @@
   --text-muted: oklch(0.58 0.01 280);
   --text-faint: oklch(0.72 0.01 280);
 
-  --accent: oklch(0.5 0.18 295);
-  --accent-soft: oklch(0.95 0.04 295);
-  --accent-text: oklch(0.42 0.18 295);
+  --accent: #2092f7;
+  --accent-soft: #e8f4ff;
+  --accent-text: #0b4fae;
 
   --success: oklch(0.55 0.14 150);
   --success-soft: oklch(0.95 0.04 150);
@@ -55,9 +55,9 @@
   --text-muted: oklch(0.62 0.01 280);
   --text-faint: oklch(0.48 0.01 280);
 
-  --accent: oklch(0.72 0.16 295);
-  --accent-soft: oklch(0.28 0.08 295);
-  --accent-text: oklch(0.82 0.14 295);
+  --accent: #2092f7;
+  --accent-soft: #0b2e57;
+  --accent-text: #bfe3ff;
 
   --success: oklch(0.72 0.16 150);
   --success-soft: oklch(0.28 0.08 150);
@@ -157,14 +157,10 @@ input, textarea, select {
 .brand-icon {
   width: 26px; height: 26px;
   border-radius: 7px;
-  background: linear-gradient(135deg, oklch(0.55 0.2 295), oklch(0.45 0.22 280));
-  display: grid; place-items: center;
-  color: white;
-  font-family: var(--font-display, 'Inter Tight', system-ui, sans-serif);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.02em;
-  box-shadow: 0 2px 6px oklch(0.5 0.18 295 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.2);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   flex-shrink: 0;
 }
 

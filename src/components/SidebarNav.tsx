@@ -24,7 +24,15 @@ export function SidebarNav({ counts = {}, userEmail = '' }: SidebarNavProps) {
     <>
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="brand-icon">D</div>
+          <div className="brand-icon" aria-hidden>
+            <img
+              src="/dom-logo.svg"
+              alt=""
+              width={26}
+              height={26}
+              style={{ width: '100%', height: '100%', display: 'block' }}
+            />
+          </div>
           <div className="brand-name">Dom da Oferta</div>
         </div>
 
@@ -63,7 +71,7 @@ export function SidebarNav({ counts = {}, userEmail = '' }: SidebarNavProps) {
             <div className="user-card">
               <div
                 className="user-avatar"
-                style={{ background: 'oklch(0.55 0.18 290)' }}
+                style={{ background: 'var(--accent)' }}
               >
                 {initial}
               </div>

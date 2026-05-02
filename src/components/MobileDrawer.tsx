@@ -34,7 +34,7 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                 href={link.href}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
-                  isActive ? 'text-violet-600 bg-violet-50' : 'text-gray-600 hover:bg-gray-50'
+                  isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
                 {link.icon}

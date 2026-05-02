@@ -94,7 +94,7 @@ export async function rejectOffer(id: string) {
   const session = await getSession()
   await db
     .update(offers)
-    .set({ status: 'rejected', rejectedBy: (session?.sub as string) ?? null })
+    .set({ status: 'rejected', rejectedAt: new Date(), rejectedBy: (session?.sub as string) ?? null })
     .where(eq(offers.id, id))
 
   revalidatePath('/')

@@ -62,6 +62,10 @@ export const OfferListItem = memo(function OfferListItem({
   const approvedAtObj = offer.approvedAt ? new Date(offer.approvedAt) : null
   const approvedStr = approvedAtObj ? `${approvedAtObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${approvedAtObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''
 
+  const showRejectedExtra = offer.status === 'rejected'
+  const rejectedAtObj = offer.rejectedAt ? new Date(offer.rejectedAt) : null
+  const rejectedStr = rejectedAtObj ? `${rejectedAtObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${rejectedAtObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''
+
   function handleApprove(e: React.MouseEvent) {
     e.stopPropagation()
     if (onApprove) { onApprove(); return }
@@ -102,8 +106,14 @@ export const OfferListItem = memo(function OfferListItem({
           </span>
           {showApprovedExtra && approvedStr && (
             <span className="approved-extra" title={email}>
-              <span className="tiny-avatar" style={{ background: userNameFormatted === 'Dom' ? 'oklch(0.55 0.18 290)' : 'oklch(0.65 0.15 30)' }}>{userInitial}</span>
+              <span className="tiny-avatar" style={{ background: userNameFormatted === 'Dom' ? 'var(--accent)' : 'oklch(0.65 0.15 30)' }}>{userInitial}</span>
               {userNameFormatted}{" · "}{approvedStr}
+            </span>
+          )}
+          {showRejectedExtra && rejectedStr && (
+            <span className="rejected-extra" title={email}>
+              <span className="tiny-avatar" style={{ background: userNameFormatted === 'Dom' ? 'var(--accent)' : 'oklch(0.65 0.15 30)' }}>{userInitial}</span>
+              {userNameFormatted}{" · "}{rejectedStr}
             </span>
           )}
         </div>
