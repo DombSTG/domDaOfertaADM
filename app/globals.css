@@ -556,8 +556,7 @@ input, textarea, select {
 
 .drawer-overlay {
   position: fixed; inset: 0;
-  background: oklch(0.18 0.01 280 / 0.32);
-  backdrop-filter: blur(2px);
+  background: oklch(0.18 0.01 280 / 0.48);
   z-index: 50;
   opacity: 0;
   pointer-events: none;
@@ -575,6 +574,7 @@ input, textarea, select {
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  will-change: transform;
   pointer-events: none;
   transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;

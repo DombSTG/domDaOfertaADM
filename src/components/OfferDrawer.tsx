@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import { OfferCard } from '@/src/components/OfferCard'
 import type { Offer } from '@/src/db/schema'
 
@@ -13,6 +14,9 @@ interface OfferDrawerProps {
 }
 
 export function OfferDrawer({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: OfferDrawerProps) {
+  const lastOffer = useRef<Offer | null>(null)
+  if (offer) lastOffer.current = offer
+
   return (
     <>
       <div
@@ -20,9 +24,9 @@ export function OfferDrawer({ offer, onClose, onPrev, onNext, hasPrev, hasNext }
         onClick={onClose}
       />
       <div className={`drawer ${offer ? 'open' : ''}`}>
-        {offer && (
+        {lastOffer.current && (
           <OfferCard
-            offer={offer}
+            offer={lastOffer.current}
             onClose={onClose}
             onPrev={onPrev}
             onNext={onNext}
