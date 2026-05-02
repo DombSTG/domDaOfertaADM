@@ -48,8 +48,24 @@ export const priceHistory = pgTable("price_history", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const offerImpressions = pgTable("offer_impressions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  offerId: uuid("offer_id").references(() => offers.id, { onDelete: "set null" }),
+  sessionId: varchar("session_id", { length: 36 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const clickEvents = pgTable("click_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  offerId: uuid("offer_id").references(() => offers.id, { onDelete: "set null" }),
+  sessionId: varchar("session_id", { length: 36 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const offersRelations = relations(offers, ({ many }) => ({
   history: many(priceHistory),
+  impressions: many(offerImpressions),
+  clicks: many(clickEvents),
 }));
 
 export const priceHistoryRelations = relations(priceHistory, ({ one }) => ({
@@ -59,7 +75,17 @@ export const priceHistoryRelations = relations(priceHistory, ({ one }) => ({
   }),
 }));
 
+export const offerImpressionsRelations = relations(offerImpressions, ({ one }) => ({
+  offer: one(offers, { fields: [offerImpressions.offerId], references: [offers.id] }),
+}));
+
+export const clickEventsRelations = relations(clickEvents, ({ one }) => ({
+  offer: one(offers, { fields: [clickEvents.offerId], references: [offers.id] }),
+}));
+
 export type PriceHistory = typeof priceHistory.$inferSelect;
+export type OfferImpression = typeof offerImpressions.$inferSelect;
+export type ClickEvent = typeof clickEvents.$inferSelect;
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

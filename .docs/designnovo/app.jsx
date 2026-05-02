@@ -10,7 +10,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [activeView, setActiveView] = useState('pending');
+  const [activeView, setActiveView] = useState('home');
   const [pending, setPending] = useState(window.PENDING_OFFERS);
   const [approved, setApproved] = useState(window.APPROVED_OFFERS);
   const [rejected, setRejected] = useState(window.REJECTED_OFFERS);
@@ -88,6 +88,7 @@ function App() {
   };
 
   const titles = {
+    home: { title: 'Início', meta: 'Visão geral · Analytics' },
     pending: { title: 'Fila de Aprovação', meta: `${pending.length} ofertas aguardando` },
     approved: { title: 'Aprovados', meta: `${approved.length} no total` },
     rejected: { title: 'Rejeitados', meta: `${rejected.length} no total` },
@@ -104,6 +105,9 @@ function App() {
         <div className="main">
           <Topbar title={titles[activeView].title} meta={titles[activeView].meta} query={query} setQuery={setQuery} />
           <div className="content">
+            {activeView === 'home' && (
+              <HomeView counts={counts} />
+            )}
             {activeView === 'pending' && (
               <PendingView offers={filteredPending} density={density} onSelect={setSelected} selectedId={selected?.id} onApprove={doApprove} onReject={doReject} />
             )}

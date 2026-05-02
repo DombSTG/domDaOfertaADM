@@ -1,6 +1,7 @@
 // Sidebar component
 function Sidebar({ activeView, setActiveView, counts, theme, setTheme, dom }) {
   const items = [
+    { id: 'home', label: 'Início', icon: <Icon.Home />, count: null },
     { id: 'pending', label: 'Fila de Aprovação', icon: <Icon.Inbox />, count: counts.pending },
     { id: 'approved', label: 'Aprovados', icon: <Icon.Check />, count: counts.approved },
     { id: 'rejected', label: 'Rejeitados', icon: <Icon.X />, count: counts.rejected },
@@ -24,7 +25,7 @@ function Sidebar({ activeView, setActiveView, counts, theme, setTheme, dom }) {
           >
             {item.icon}
             <span>{item.label}</span>
-            <span className="nav-count">{item.count}</span>
+            {item.count != null && <span className="nav-count">{item.count}</span>}
           </button>
         ))}
       </nav>
