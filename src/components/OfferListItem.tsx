@@ -9,8 +9,10 @@ import { toast } from 'sonner'
 
 type Density = 'compact' | 'normal' | 'cozy'
 
+export type ExtendedOffer = Offer & { userEmail?: string | null };
+
 interface OfferListItemProps {
-  offer: Offer
+  offer: ExtendedOffer
   density?: Density
   isSelected?: boolean
   index: number
@@ -48,7 +50,17 @@ export const OfferListItem = memo(function OfferListItem({
       : 0
 
   const mpKey = storeToMp(offer.store)
+
+  const email = offer.userEmail || 'dom@admin.com'
+  const userName = email.split('@')[0]
+  const userInitial = userName.charAt(0).toUpperCase()
+  const userNameFormatted = userName.charAt(0).toUpperCase() + userName.slice(1)
+
   const dateStr = new Date(offer.createdAt).toLocaleDateString('pt-BR')
+  
+  const showApprovedExtra = offer.status === 'approved'
+  const approvedAtObj = offer.approvedAt ? new Date(offer.approvedAt) : null
+  const approvedStr = approvedAtObj ? `${approvedAtObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${approvedAtObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : ''
 
   function handleApprove(e: React.MouseEvent) {
     e.stopPropagation()
@@ -83,11 +95,17 @@ export const OfferListItem = memo(function OfferListItem({
       </div>
 
       <div className="offer-main">
-        <div className="offer-title">{offer.title}</div>
+        <div className="offer-title" title={offer.title}>{offer.title}</div>
         <div className="offer-meta-row">
           <span className="marketplace-chip" data-mp={mpKey || undefined}>
-            {offer.store}
+            {mpKey === 'amazon' ? 'AMZ' : mpKey === 'mercadolivre' ? 'ML' : mpKey === 'shopee' ? 'SHP' : offer.store}
           </span>
+          {showApprovedExtra && approvedStr && (
+            <span className="approved-extra" title={email}>
+              <span className="tiny-avatar" style={{ background: userNameFormatted === 'Dom' ? 'oklch(0.55 0.18 290)' : 'oklch(0.65 0.15 30)' }}>{userInitial}</span>
+              {userNameFormatted}{" · "}{approvedStr}
+            </span>
+          )}
         </div>
       </div>
 
