@@ -5,11 +5,13 @@ import { offers, priceHistory } from '@/src/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { sendTelegramMessage } from '@/lib/telegram'
+import { getSession } from './auth-actions'
 
 export async function approveOffer(id: string, newTitle: string, copyText: string) {
+  const session = await getSession()
   const [updatedOffer] = await db
     .update(offers)
-    .set({ status: 'approved', title: newTitle, copyText, approvedAt: new Date() })
+    .set({ status: 'approved', title: newTitle, copyText, approvedAt: new Date(), approvedBy: (session?.sub as string) ?? null })
     .where(eq(offers.id, id))
     .returning()
 
@@ -89,12 +91,22 @@ export async function updateOfferAffiliateUrl(id: string, affiliateUrl: string) 
 }
 
 export async function rejectOffer(id: string) {
+  const session = await getSession()
   await db
     .update(offers)
-    .set({ status: 'rejected' })
+    .set({ status: 'rejected', rejectedBy: (session?.sub as string) ?? null })
     .where(eq(offers.id, id))
 
   revalidatePath('/')
+}
+
+export async function getPriceHistory(offerId: string) {
+  return db
+    .select()
+    .from(priceHistory)
+    .where(eq(priceHistory.offerId, offerId))
+    .orderBy(desc(priceHistory.createdAt))
+    .limit(20)
 }
 
 export async function createOffer(data: {

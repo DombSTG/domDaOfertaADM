@@ -1,68 +1,120 @@
 'use client'
 
-import Image from 'next/image'
+import { Check, X, Pencil } from 'lucide-react'
 import type { Offer } from '@/src/db/schema'
+import { memo, useTransition } from 'react'
+import { approveOffer, rejectOffer } from '@/src/actions/offer-actions'
+import { toast } from 'sonner'
+
+type Density = 'compact' | 'normal' | 'cozy'
 
 interface OfferListItemProps {
   offer: Offer
-  onClick: () => void
+  density?: Density
+  isSelected?: boolean
+  index: number
+  onSelect: (index: number) => void
+  onApprove?: () => void
+  onReject?: () => void
 }
 
-export function OfferListItem({ offer, onClick }: OfferListItemProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full text-left flex items-center gap-3 px-4 py-3 md:px-6 md:py-[7px] border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors group"
-    >
-      {/* Status dot */}
-      <div className={`h-[7px] w-[7px] rounded-full shrink-0 ${
-        offer.status === 'approved' ? 'bg-emerald-500' :
-        offer.status === 'rejected' ? 'bg-red-500' :
-        'bg-amber-400'
-      }`} />
+const fmtBRL = (v: number | string) =>
+  Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-      {/* Thumbnail */}
-      <div className="h-[28px] w-[28px] shrink-0 overflow-hidden rounded-[4px] bg-gray-100 border border-gray-100 relative">
-        {offer.imageUrl ? (
-          <Image
-            src={offer.imageUrl}
-            alt={offer.title}
-            fill
-            className="object-contain"
-            sizes="28px"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-300">
-            —
-          </div>
+function storeToMp(store: string): string {
+  const s = store.toLowerCase()
+  if (s.includes('amazon')) return 'amazon'
+  if (s.includes('mercado')) return 'mercadolivre'
+  if (s.includes('shopee')) return 'shopee'
+  if (s.includes('magalu') || s.includes('magazine')) return 'magalu'
+  return ''
+}
+
+export const OfferListItem = memo(function OfferListItem({
+  offer,
+  density = 'normal',
+  isSelected = false,
+  index,
+  onSelect,
+  onApprove,
+  onReject,
+}: OfferListItemProps) {
+  const [isPending, startTransition] = useTransition()
+
+  const pct =
+    offer.oldPrice && Number(offer.oldPrice) > Number(offer.currentPrice)
+      ? Math.round((1 - Number(offer.currentPrice) / Number(offer.oldPrice)) * 100)
+      : 0
+
+  const mpKey = storeToMp(offer.store)
+  const dateStr = new Date(offer.createdAt).toLocaleDateString('pt-BR')
+
+  function handleApprove(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (onApprove) { onApprove(); return }
+    startTransition(async () => {
+      await approveOffer(offer.id, offer.title, offer.copyText ?? '')
+      toast.success('Oferta aprovada!')
+    })
+  }
+
+  function handleReject(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (onReject) { onReject(); return }
+    startTransition(async () => {
+      await rejectOffer(offer.id)
+      toast.info('Oferta reprovada.')
+    })
+  }
+
+  return (
+    <div
+      className={`offer-row${density !== 'normal' ? ` ${density}` : ''}${isSelected ? ' selected' : ''}`}
+      onClick={() => onSelect(index)}
+      style={{ opacity: isPending ? 0.5 : 1 }}
+    >
+      <span className={`offer-status ${offer.status}`} aria-hidden />
+
+      <div
+        className="offer-img"
+        style={offer.imageUrl ? { backgroundImage: `url('${offer.imageUrl}')` } : undefined}
+        aria-hidden
+      />
+
+      <div className="offer-main">
+        <div className="offer-title">{offer.title}</div>
+        <div className="offer-meta-row">
+          <span className="marketplace-chip" data-mp={mpKey || undefined}>
+            {offer.store}
+          </span>
+        </div>
+      </div>
+
+      <div className="offer-discount tabular">
+        {pct > 0 ? `−${pct}%` : ''}
+      </div>
+
+      <div className="offer-price-block">
+        <div className="offer-price">R$ {fmtBRL(offer.currentPrice)}</div>
+        {offer.oldPrice && Number(offer.oldPrice) > Number(offer.currentPrice) && (
+          <div className="offer-price-original">R$ {fmtBRL(offer.oldPrice)}</div>
         )}
       </div>
 
-      {/* Loja + Título + Preço */}
-      <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-y-0.5 md:gap-3">
-        {/* Loja */}
-        <span className="shrink-0 text-[11px] font-medium text-gray-500 bg-gray-100 rounded-[4px] px-1.5 py-0.5 leading-none self-start">
-          {offer.store}
-        </span>
-
-        {/* Título */}
-        <p className="min-w-0 flex-1 line-clamp-2 md:truncate text-[13px] text-gray-700">
-          {offer.title}
-        </p>
-
-        {/* Preço */}
-        <span className="shrink-0 text-[12px] font-semibold text-emerald-600 tabular-nums">
-          R${' '}
-          {Number(offer.currentPrice).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-          })}
-        </span>
+      <div className="offer-tail">
+        <span className="offer-date tabular">{dateStr}</span>
+        <div className="offer-actions" onClick={(e) => e.stopPropagation()}>
+          <button className="row-action" title="Editar" onClick={() => onSelect(index)}>
+            <Pencil size={12} />
+          </button>
+          <button className="row-action reject" title="Reprovar" onClick={handleReject}>
+            <X size={13} />
+          </button>
+          <button className="row-action approve" title="Aprovar" onClick={handleApprove}>
+            <Check size={13} />
+          </button>
+        </div>
       </div>
-
-      {/* Data */}
-      <span className="hidden md:block shrink-0 w-[72px] text-right text-[11px] text-gray-400 tabular-nums">
-        {new Date(offer.createdAt).toLocaleDateString('pt-BR')}
-      </span>
-    </button>
+    </div>
   )
-}
+})

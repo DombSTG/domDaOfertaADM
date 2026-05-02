@@ -6,7 +6,11 @@ import { Menu } from 'lucide-react'
 import { navLinks } from '@/src/lib/nav-links'
 import { MobileDrawer } from './MobileDrawer'
 
-export function BottomNav() {
+interface BottomNavProps {
+  counts?: Record<string, number>
+}
+
+export function BottomNav({ counts = {} }: BottomNavProps) {
   const pathname = usePathname()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -19,16 +23,25 @@ export function BottomNav() {
         <div className="grid grid-cols-5">
           {mobileLinks.map((link) => {
             const isActive = pathname === link.href
+            const count = link.countKey ? (counts[link.countKey] ?? 0) : 0
+            const isPending = link.countKey === 'pending'
             return (
               <a
                 key={link.href}
                 href={link.href}
-                className={`flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
+                className={`relative flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
                   isActive ? 'text-violet-600' : 'text-gray-400'
                 }`}
               >
-                <span className={isActive ? 'text-violet-600' : 'text-gray-400'}>
+                <span className={`relative ${isActive ? 'text-violet-600' : 'text-gray-400'}`}>
                   {link.icon}
+                  {count > 0 && (
+                    <span className={`absolute -top-1 -right-1.5 text-[9px] font-bold px-1 py-px rounded-full leading-none ${
+                      isPending ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'
+                    }`}>
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
                 </span>
                 {link.label}
               </a>

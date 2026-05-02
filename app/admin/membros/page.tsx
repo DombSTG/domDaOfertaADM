@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/src/db/db'
-import { users } from '@/src/db/schema'
+import { users, offers } from '@/src/db/schema'
+import { count } from 'drizzle-orm'
 import { MembrosClient } from './MembrosClient'
 
 export default async function MembrosPage() {
@@ -14,14 +15,38 @@ export default async function MembrosPage() {
     .from(users)
     .orderBy(users.createdAt)
 
+  const approvedCounts = await db
+    .select({ userId: offers.approvedBy, n: count() })
+    .from(offers)
+    .groupBy(offers.approvedBy)
+
+  const rejectedCounts = await db
+    .select({ userId: offers.rejectedBy, n: count() })
+    .from(offers)
+    .groupBy(offers.rejectedBy)
+
+  const approvedMap = Object.fromEntries(
+    approvedCounts.map((r) => [r.userId, Number(r.n)])
+  )
+  const rejectedMap = Object.fromEntries(
+    rejectedCounts.map((r) => [r.userId, Number(r.n)])
+  )
+
+  const membrosComStats = membros.map((m) => ({
+    ...m,
+    approvedCount: approvedMap[m.id] ?? 0,
+    rejectedCount: rejectedMap[m.id] ?? 0,
+  }))
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center h-[44px] px-6 border-b border-gray-100 shrink-0">
-        <h1 className="text-[13px] font-semibold text-gray-900">Membros</h1>
+    <>
+      <div className="topbar">
+        <div className="topbar-title">Membros</div>
+        <div className="topbar-meta">· {membros.length}</div>
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
-        <MembrosClient membros={membros} />
+      <div className="content">
+        <MembrosClient membros={membrosComStats} />
       </div>
-    </div>
+    </>
   )
 }

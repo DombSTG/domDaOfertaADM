@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
 import { eq } from 'drizzle-orm'
-import { OfferListPage } from '@/src/components/OfferListPage'
+import { OfferPageShell } from '@/src/components/OfferPageShell'
 
 export default async function Aprovadas() {
   const approvedOffers = await db
@@ -12,13 +12,13 @@ export default async function Aprovadas() {
     .orderBy(offers.createdAt)
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center h-[44px] px-6 border-b border-gray-100 shrink-0">
-        <h1 className="text-[13px] font-semibold text-gray-900">Aprovadas</h1>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <OfferListPage offers={approvedOffers} label="Aprovadas" />
-      </div>
-    </div>
+    <OfferPageShell
+      title="Aprovadas"
+      label="Aprovadas"
+      offers={approvedOffers}
+      statsItems={[
+        { label: 'Aprovadas (total)', value: approvedOffers.length, delta: 'histórico completo' },
+      ]}
+    />
   )
 }

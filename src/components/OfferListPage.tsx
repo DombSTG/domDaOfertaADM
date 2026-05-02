@@ -1,53 +1,159 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { OfferListItem } from '@/src/components/OfferListItem'
-import { OfferDetailDialog } from '@/src/components/OfferDetailDialog'
+import { OfferDrawer } from '@/src/components/OfferDrawer'
 import type { Offer } from '@/src/db/schema'
+
+type Density = 'compact' | 'normal' | 'cozy'
+
+interface StatItem {
+  label: string
+  value: string | number
+  delta?: string
+  deltaDir?: 'up' | 'down' | ''
+}
 
 interface OfferListPageProps {
   offers: Offer[]
+  query?: string
+  density?: Density
+  view?: 'pending' | 'approved' | 'rejected' | 'all'
   label?: string
+  statsItems?: StatItem[]
+  filterLabel?: string
 }
 
-export function OfferListPage({ offers, label = 'Pendentes' }: OfferListPageProps) {
-  const [selected, setSelected] = useState<Offer | null>(null)
+const MARKETPLACE_FILTERS = [
+  { id: 'all', label: 'Todos' },
+  { id: 'amazon', label: 'Amazon' },
+  { id: 'mercadolivre', label: 'Mercado Livre' },
+  { id: 'shopee', label: 'Shopee' },
+  { id: 'magalu', label: 'MagaLu' },
+]
 
-  if (offers.length === 0) {
-    return (
-      <div className="flex h-48 items-center justify-center text-[13px] text-gray-400">
-        Nenhuma oferta na fila no momento.
-      </div>
-    )
-  }
+function storeToMp(store: string): string {
+  const s = store.toLowerCase()
+  if (s.includes('amazon')) return 'amazon'
+  if (s.includes('mercado')) return 'mercadolivre'
+  if (s.includes('shopee')) return 'shopee'
+  if (s.includes('magalu') || s.includes('magazine')) return 'magalu'
+  return 'other'
+}
+
+export function OfferListPage({
+  offers,
+  query = '',
+  density = 'normal',
+  label = 'Ofertas',
+  statsItems,
+  filterLabel,
+}: OfferListPageProps) {
+  const [marketFilter, setMarketFilter] = useState('all')
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+
+  const filtered = useMemo(() => {
+    let list = offers
+    if (query.trim()) {
+      const q = query.trim().toLowerCase()
+      list = list.filter(
+        (o) =>
+          o.title.toLowerCase().includes(q) ||
+          o.store.toLowerCase().includes(q)
+      )
+    }
+    if (marketFilter !== 'all') {
+      list = list.filter((o) => storeToMp(o.store) === marketFilter)
+    }
+    return list
+  }, [offers, query, marketFilter])
+
+  const selected = selectedIndex !== null ? filtered[selectedIndex] ?? null : null
+
+  const handleSelect = useCallback((index: number) => setSelectedIndex(index), [])
+  const handleClose = useCallback(() => setSelectedIndex(null), [])
+  const handlePrev = useCallback(() => setSelectedIndex((i) => (i !== null ? i - 1 : null)), [])
+  const handleNext = useCallback(() => setSelectedIndex((i) => (i !== null ? i + 1 : null)), [])
+
+  const densityLabel =
+    density === 'compact' ? 'Compacto' : density === 'cozy' ? 'Confortável' : 'Normal'
 
   return (
     <>
-      {/* Group header */}
-      <div className="flex items-center gap-2 px-6 py-2 border-b border-gray-100 bg-white sticky top-0 z-10">
-        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
-          {label}
-        </span>
-        <span className="text-[11px] font-medium text-gray-400">
-          {offers.length}
-        </span>
+      {/* Stats Bar */}
+      {statsItems && statsItems.length > 0 && (
+        <div className="stats-bar">
+          {statsItems.map((item, i) => (
+            <div className="stat-card" key={i}>
+              <div className="stat-label">{item.label}</div>
+              <div className="stat-value tabular">{item.value}</div>
+              {item.delta && (
+                <div className={`stat-delta${item.deltaDir ? ` ${item.deltaDir}` : ''}`}>
+                  {item.delta}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Filter Bar */}
+      <div className="section-bar">
+        <span className="section-label">{filterLabel || label}</span>
+        <span className="section-count">{filtered.length}</span>
+        <div className="filters">
+          {MARKETPLACE_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              className={`chip${marketFilter === f.id ? ' active' : ''}`}
+              onClick={() => setMarketFilter(f.id)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Lista */}
-      <div className="flex flex-col">
-        {offers.map((offer) => (
-          <OfferListItem
-            key={offer.id}
-            offer={offer}
-            onClick={() => setSelected(offer)}
-          />
-        ))}
-      </div>
+      {/* List */}
+      {filtered.length === 0 ? (
+        <div className="empty">
+          <div className="empty-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+          </div>
+          <div className="empty-title">
+            {offers.length === 0 ? 'Nenhuma oferta aqui.' : 'Nenhum resultado.'}
+          </div>
+          <div className="empty-sub">
+            {offers.length === 0
+              ? `A fila de ${label.toLowerCase()} está vazia.`
+              : `Tente ajustar os filtros ou a busca.`}
+          </div>
+        </div>
+      ) : (
+        <div className="offer-list">
+          {filtered.map((offer, index) => (
+            <OfferListItem
+              key={offer.id}
+              offer={offer}
+              density={density}
+              index={index}
+              isSelected={selectedIndex === index}
+              onSelect={handleSelect}
+            />
+          ))}
+        </div>
+      )}
 
-      <OfferDetailDialog
+      {/* Drawer */}
+      <OfferDrawer
         offer={selected}
-        isOpen={selected !== null}
-        onClose={() => setSelected(null)}
+        onClose={handleClose}
+        hasPrev={selectedIndex !== null && selectedIndex > 0}
+        hasNext={selectedIndex !== null && selectedIndex < filtered.length - 1}
+        onPrev={handlePrev}
+        onNext={handleNext}
       />
     </>
   )

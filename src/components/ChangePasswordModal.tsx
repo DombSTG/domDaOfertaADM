@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { X } from 'lucide-react'
 import { changePassword } from '@/src/actions/auth-actions'
 import { toast } from 'sonner'
 
@@ -23,74 +23,93 @@ export function ChangePasswordModal({ isOpen, onClose }: Props) {
     }
   }, [state])
 
-  const mismatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword !== confirmPassword
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
+    if (isOpen) document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [isOpen])
 
-  const inputClass =
-    'w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent'
+  const mismatch =
+    newPassword.length > 0 && confirmPassword.length > 0 && newPassword !== confirmPassword
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="text-[14px] font-semibold text-gray-900">Alterar Senha</DialogTitle>
-        </DialogHeader>
-        <form action={formAction} className="space-y-3 pt-2">
-          <div className="space-y-1.5">
-            <label htmlFor="currentPassword" className="text-[13px] font-medium text-gray-700">
-              Senha Atual
-            </label>
-            <input
-              id="currentPassword"
-              name="currentPassword"
-              type="password"
-              required
-              className={inputClass}
-              placeholder="Sua senha atual"
-            />
+    <>
+      <div className={`drawer-overlay${isOpen ? ' open' : ''}`} onClick={onClose} />
+      <div className={`drawer modal-mode${isOpen ? ' open' : ''}`} style={{ width: 'min(400px, 92vw)' }}>
+        <div className="drawer-header">
+          <button className="icon-btn" onClick={onClose} aria-label="Fechar">
+            <X size={16} />
+          </button>
+          <div className="drawer-title-block">
+            <div className="drawer-eyebrow">Conta</div>
+            <div className="drawer-title">Alterar senha</div>
           </div>
-          <div className="space-y-1.5">
-            <label htmlFor="newPassword" className="text-[13px] font-medium text-gray-700">
-              Nova Senha
-            </label>
-            <input
-              id="newPassword"
-              name="newPassword"
-              type="password"
-              required
-              minLength={6}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className={inputClass}
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="confirmPassword" className="text-[13px] font-medium text-gray-700">
-              Confirmar Nova Senha
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`${inputClass} ${mismatch ? 'border-red-400 focus:ring-red-400' : ''}`}
-              placeholder="Repita a nova senha"
-            />
-            {mismatch && (
-              <p className="text-[11px] text-red-500">As senhas não coincidem.</p>
-            )}
-          </div>
+        </div>
+
+        <div className="drawer-body">
+          <form id="change-pwd-form" action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="field-group">
+              <label className="field-label" htmlFor="currentPassword">Senha atual</label>
+              <input
+                id="currentPassword"
+                name="currentPassword"
+                type="password"
+                required
+                className="field-input"
+                placeholder="Sua senha atual"
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label" htmlFor="newPassword">Nova senha</label>
+              <input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="field-input"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label" htmlFor="confirmPassword">Confirmar nova senha</label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`field-input${mismatch ? ' field-input-error' : ''}`}
+                style={mismatch ? { borderColor: 'var(--danger)', boxShadow: '0 0 0 3px var(--danger-soft)' } : undefined}
+                placeholder="Repita a nova senha"
+              />
+              {mismatch && (
+                <p style={{ fontSize: 11, color: 'var(--danger)', marginTop: 2 }}>
+                  As senhas não coincidem.
+                </p>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <div className="drawer-footer">
+          <button className="btn btn-ghost" onClick={onClose} disabled={pending}>
+            Cancelar
+          </button>
+          <div style={{ flex: 1 }} />
           <button
             type="submit"
+            form="change-pwd-form"
+            className="btn btn-primary"
             disabled={pending || !!mismatch}
-            className="w-full px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-medium rounded-[8px] transition-colors"
           >
-            {pending ? 'Salvando...' : 'Alterar Senha'}
+            {pending ? 'Salvando...' : 'Alterar senha'}
           </button>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </>
   )
 }

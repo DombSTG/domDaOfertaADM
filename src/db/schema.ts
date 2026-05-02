@@ -32,6 +32,8 @@ export const offers = pgTable("offers", {
   copyText: text("copy_text"),
   rating: numeric("rating", { precision: 3, scale: 1 }),
   reviews: integer("reviews"),
+  approvedBy: uuid("approved_by").references(() => users.id, { onDelete: 'set null' }),
+  rejectedBy: uuid("rejected_by").references(() => users.id, { onDelete: 'set null' }),
 });
 
 export type Offer = typeof offers.$inferSelect;

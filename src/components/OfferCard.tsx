@@ -1,200 +1,321 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState, useTransition, useEffect } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ExternalLink } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import {
+  ExternalLink,
+  ChevronDown,
+  ChevronRight,
+  TrendingUp,
+  ArrowLeft,
+  ArrowRight,
+  X,
+  Check,
+} from "lucide-react";
 import {
   approveOffer,
   rejectOffer,
   updateOfferPrice,
   updateOfferCurrentPrice,
   updateOfferAffiliateUrl,
+  getPriceHistory,
 } from "@/src/actions/offer-actions";
-import type { Offer } from "@/src/db/schema";
+import type { Offer, PriceHistory } from "@/src/db/schema";
 
 interface OfferCardProps {
   offer: Offer;
-  onClose?: () => void;
+  onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
-export function OfferCard({ offer, onClose }: OfferCardProps) {
+function sanitizeTelegramHtml(text: string): string {
+  let result = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+  result = result
+    .replace(/&lt;(b|i|u|s|code)&gt;/gi, "<$1>")
+    .replace(/&lt;\/(b|i|u|s|code)&gt;/gi, "</$1>")
+    .replace(/&lt;a href="([^"]*)"&gt;/gi, '<a href="$1" target="_blank" rel="noopener">')
+    .replace(/&lt;\/a&gt;/gi, "</a>")
+    .replace(/\n/g, "<br>")
+  return result
+}
+
+const fmtBRL = (v: number | string) =>
+  Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+function storeToMp(store: string): string {
+  const s = store.toLowerCase()
+  if (s.includes('amazon')) return 'amazon'
+  if (s.includes('mercado')) return 'mercadolivre'
+  if (s.includes('shopee')) return 'shopee'
+  if (s.includes('magalu') || s.includes('magazine')) return 'magalu'
+  return ''
+}
+
+export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: OfferCardProps) {
   const [title, setTitle] = useState(offer.title);
   const [copy, setCopy] = useState(offer.copyText ?? "");
+  const [showPreview, setShowPreview] = useState(false);
   const [editedPrice, setEditedPrice] = useState(offer.oldPrice ?? "");
-  const [editedCurrentPrice, setEditedCurrentPrice] = useState(
-    offer.currentPrice ?? ""
-  );
+  const [editedCurrentPrice, setEditedCurrentPrice] = useState(offer.currentPrice ?? "");
   const [affiliateUrl, setAffiliateUrl] = useState(offer.affiliateUrl ?? "");
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [history, setHistory] = useState<PriceHistory[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const titleRef = useRef<HTMLTextAreaElement>(null);
-
-  const autoResizeTitle = (el: HTMLTextAreaElement) => {
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-  };
 
   useEffect(() => {
-    if (titleRef.current) autoResizeTitle(titleRef.current);
-  }, []);
+    setTitle(offer.title);
+    setCopy(offer.copyText ?? "");
+    setEditedPrice(offer.oldPrice ?? "");
+    setEditedCurrentPrice(offer.currentPrice ?? "");
+    setAffiliateUrl(offer.affiliateUrl ?? "");
+    setHistoryOpen(false);
+    setHistoryLoaded(false);
+    setHistory([]);
+    setShowPreview(false);
+  }, [offer.id]);
+
+  useEffect(() => {
+    if (historyOpen && !historyLoaded) {
+      getPriceHistory(offer.id).then((rows) => {
+        setHistory(rows);
+        setHistoryLoaded(true);
+      });
+    }
+  }, [historyOpen, historyLoaded, offer.id]);
 
   const handleApprove = () => {
     startTransition(async () => {
       await approveOffer(offer.id, title, copy);
-      toast.success("Oferta aprovada!", {
-        description: title,
-      });
-      onClose?.();
+      toast.success("Oferta aprovada!", { description: title });
+      onClose();
     });
   };
 
   const handleReject = () => {
     startTransition(async () => {
       await rejectOffer(offer.id);
-      toast.info("Oferta descartada.", {
-        description: offer.title,
-      });
-      onClose?.();
+      toast.info("Oferta descartada.", { description: offer.title });
+      onClose();
     });
   };
 
+  const pct =
+    editedPrice && Number(editedPrice) > Number(editedCurrentPrice)
+      ? Math.round((1 - Number(editedCurrentPrice) / Number(editedPrice)) * 100)
+      : 0;
+
+  const mpKey = storeToMp(offer.store);
+  const dateStr = new Date(offer.createdAt).toLocaleDateString("pt-BR");
+
   return (
-    <div className="flex flex-col">
-      {/* Imagem */}
-      <div className="w-full h-48 sm:h-64 relative flex items-center justify-center overflow-hidden bg-zinc-50 border-b border-gray-100">
-        {offer.imageUrl ? (
-          <Image
-            src={offer.imageUrl}
-            alt={offer.title}
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 100vw, 500px"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-[13px] text-gray-400">
-            Sem imagem
+    <>
+      {/* Header */}
+      <div className="drawer-header">
+        <button className="icon-btn" onClick={onClose} aria-label="Fechar">
+          <X size={16} />
+        </button>
+        <div className="drawer-title-block">
+          <div className="drawer-eyebrow">Revisão de oferta</div>
+          <div className="drawer-title">
+            {offer.id.slice(0, 8).toUpperCase()} · {offer.store}
           </div>
-        )}
+        </div>
+        <div className="drawer-nav-btns">
+          <button
+            className="icon-btn"
+            onClick={onPrev}
+            disabled={!hasPrev}
+            aria-label="Anterior"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <button
+            className="icon-btn"
+            onClick={onNext}
+            disabled={!hasNext}
+            aria-label="Próxima"
+          >
+            <ArrowRight size={16} />
+          </button>
+        </div>
       </div>
 
-      {/* Meta */}
-      <div className="px-5 pt-4 pb-3 border-b border-gray-100">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-medium text-gray-500 bg-gray-100 rounded-[4px] px-1.5 py-0.5">
-              {offer.store}
-            </span>
+      {/* Body */}
+      <div className="drawer-body">
+        {/* Hero */}
+        <div className="review-hero">
+          <div
+            className="review-img"
+            style={offer.imageUrl ? { backgroundImage: `url('${offer.imageUrl}')` } : undefined}
+          />
+          <div className="review-side">
+            <div className="review-meta">
+              <span className="marketplace-chip" data-mp={mpKey || undefined}>
+                {offer.store}
+              </span>
+              <span>·</span>
+              <span>{dateStr}</span>
+            </div>
+            <div className="review-prices">
+              <span className="review-price-current">
+                R$ {fmtBRL(editedCurrentPrice || offer.currentPrice)}
+              </span>
+              {editedPrice && Number(editedPrice) > Number(editedCurrentPrice) && (
+                <span className="review-price-original">
+                  R$ {fmtBRL(editedPrice)}
+                </span>
+              )}
+            </div>
+            {pct > 0 && (
+              <span className="discount-badge">
+                <TrendingUp size={11} /> −{pct}% de desconto
+              </span>
+            )}
+            {(offer.rating || offer.reviews) && (
+              <div className="review-rating">
+                {offer.rating && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <span style={{ color: 'var(--warning)' }}>★</span>
+                    <strong style={{ color: 'var(--text)' }}>{offer.rating}</strong>
+                  </span>
+                )}
+                {offer.reviews && (
+                  <span>({Number(offer.reviews).toLocaleString('pt-BR')} avaliações)</span>
+                )}
+              </div>
+            )}
             <a
+              className="review-link"
               href={offer.originalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-0.5 text-[11px] text-blue-500 hover:underline"
             >
-              <ExternalLink size={11} />
-              Abrir na Loja
+              <ExternalLink size={12} /> Abrir na loja
             </a>
           </div>
-          <span className="text-[11px] text-gray-400 tabular-nums">
-            {new Date(offer.createdAt).toLocaleDateString("pt-BR")}
-          </span>
         </div>
-        <p className="text-[12px] text-gray-500 line-clamp-2 mb-2">
-          {offer.title}
-        </p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-[18px] font-bold text-gray-900 tabular-nums">
-            R${" "}
-            {Number(offer.currentPrice).toLocaleString("pt-BR", {
-              minimumFractionDigits: 2,
-            })}
-          </span>
-          {offer.oldPrice && (
-            <span className="text-[13px] line-through text-gray-400 tabular-nums">
-              R${" "}
-              {Number(offer.oldPrice).toLocaleString("pt-BR", {
-                minimumFractionDigits: 2,
-              })}
-            </span>
+
+        {/* Título */}
+        <div className="field-group">
+          <label className="field-label">Título</label>
+          <input
+            className="field-input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isPending}
+          />
+        </div>
+
+        {/* Texto da mensagem */}
+        <div className="field-group">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label className="field-label">Texto da mensagem</label>
+            <button
+              type="button"
+              onClick={() => setShowPreview((p) => !p)}
+              className="btn btn-ghost"
+              style={{ padding: '2px 6px', fontSize: 11 }}
+            >
+              {showPreview ? 'Editar' : 'Preview'}
+            </button>
+          </div>
+          {showPreview ? (
+            <div
+              className="field-preview"
+              dangerouslySetInnerHTML={{ __html: sanitizeTelegramHtml(copy) }}
+            />
+          ) : (
+            <textarea
+              className="field-textarea"
+              value={copy}
+              onChange={(e) => setCopy(e.target.value)}
+              placeholder="Escreva o texto promocional..."
+              disabled={isPending}
+              rows={4}
+            />
           )}
         </div>
-      </div>
 
-      {/* Campos editáveis */}
-      <div className="px-5 py-4 flex flex-col gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Corrigir Preço Original
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              value={editedPrice}
-              onChange={(e) => setEditedPrice(e.target.value)}
-              disabled={isPending}
-              className="text-base h-8"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-8 text-[13px] shrink-0 cursor-pointer"
-              disabled={isPending}
-              onClick={() => {
-                startTransition(async () => {
-                  await updateOfferPrice(offer.id, editedPrice);
-                  toast.success("Preço atualizado com sucesso!");
-                });
-              }}
-            >
-              Atualizar
-            </Button>
+        {/* Preços */}
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Preço original</label>
+            <div className="field-action-row">
+              <div className="input-with-prefix" style={{ flex: 1 }}>
+                <span className="prefix">R$</span>
+                <input
+                  className="field-input"
+                  value={editedPrice}
+                  onChange={(e) => setEditedPrice(e.target.value)}
+                  disabled={isPending}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                disabled={isPending}
+                onClick={() => {
+                  startTransition(async () => {
+                    await updateOfferPrice(offer.id, editedPrice);
+                    toast.success("Preço atualizado!");
+                  });
+                }}
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Preço da oferta</label>
+            <div className="field-action-row">
+              <div className="input-with-prefix" style={{ flex: 1 }}>
+                <span className="prefix">R$</span>
+                <input
+                  className="field-input"
+                  value={editedCurrentPrice}
+                  onChange={(e) => setEditedCurrentPrice(e.target.value)}
+                  disabled={isPending}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                disabled={isPending}
+                onClick={() => {
+                  startTransition(async () => {
+                    await updateOfferCurrentPrice(offer.id, editedCurrentPrice);
+                    toast.success("Preço atualizado!");
+                  });
+                }}
+              >
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Corrigir Preço da Oferta
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              value={editedCurrentPrice}
-              onChange={(e) => setEditedCurrentPrice(e.target.value)}
-              disabled={isPending}
-              className="text-base h-8"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              className="h-8 text-[13px] shrink-0 cursor-pointer"
-              disabled={isPending}
-              onClick={() => {
-                startTransition(async () => {
-                  await updateOfferCurrentPrice(offer.id, editedCurrentPrice);
-                  toast.success("Preço atualizado com sucesso!");
-                });
-              }}
-            >
-              Atualizar
-            </Button>
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Link de Afiliado
-          </Label>
-          <div className="flex gap-2">
-            <Input
+
+        {/* Link de afiliado */}
+        <div className="field-group">
+          <label className="field-label">Link de afiliado</label>
+          <div className="field-action-row">
+            <input
+              className="field-input"
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, flex: 1 }}
               value={affiliateUrl}
               onChange={(e) => setAffiliateUrl(e.target.value)}
               disabled={isPending}
               placeholder="https://..."
-              className="text-base h-8"
             />
-            <Button
+            <button
               type="button"
-              variant="secondary"
-              className="h-8 text-[13px] shrink-0 cursor-pointer"
+              className="btn btn-secondary btn-sm"
               disabled={isPending}
               onClick={() => {
                 startTransition(async () => {
@@ -203,59 +324,77 @@ export function OfferCard({ offer, onClose }: OfferCardProps) {
                 });
               }}
             >
-              Atualizar
-            </Button>
+              Salvar
+            </button>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Título
-          </label>
-          <Textarea
-            ref={titleRef}
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              autoResizeTitle(e.target);
-            }}
-            placeholder="Edite o título da oferta..."
-            disabled={isPending}
-            className="min-h-[32px] resize-none overflow-hidden text-base leading-snug py-1.5"
-            rows={1}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-            Texto da mensagem
-          </label>
-          <Textarea
-            value={copy}
-            onChange={(e) => setCopy(e.target.value)}
-            placeholder="Escreva o texto promocional..."
-            className="min-h-[80px] resize-none text-base"
-            disabled={isPending}
-          />
+
+        {/* Histórico de preços */}
+        <div>
+          <button
+            type="button"
+            className="history-toggle"
+            onClick={() => setHistoryOpen((o) => !o)}
+          >
+            <span>Histórico de preços</span>
+            {historyOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+          </button>
+          {historyOpen && (
+            <div className="history-body">
+              {!historyLoaded ? (
+                <p style={{ padding: '12px', fontSize: 12, color: 'var(--text-muted)' }}>Carregando…</p>
+              ) : history.length === 0 ? (
+                <p style={{ padding: '12px', fontSize: 12, color: 'var(--text-muted)' }}>Sem registros.</p>
+              ) : (
+                <table className="history-table">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Atual</th>
+                      <th>Anterior</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((h) => (
+                      <tr key={h.id}>
+                        <td>{new Date(h.createdAt).toLocaleDateString('pt-BR')}</td>
+                        <td>R$ {fmtBRL(h.currentPrice)}</td>
+                        <td>{h.oldPrice ? `R$ ${fmtBRL(h.oldPrice)}` : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Ações */}
-      <div className="flex flex-col sm:flex-row gap-2 px-4 sm:px-5 pb-4 sm:pb-5">
-        <Button
-          className="flex-1 h-10 sm:h-8 text-[13px] bg-gray-900 hover:bg-gray-800 text-white cursor-pointer"
-          onClick={handleApprove}
-          disabled={isPending || !title.trim()}
-        >
-          Aprovar
-        </Button>
-        <Button
-          variant="outline"
-          className="flex-1 h-10 sm:h-8 text-[13px] text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 cursor-pointer"
+      {/* Footer */}
+      <div className="drawer-footer">
+        <button
+          className="btn btn-danger"
           onClick={handleReject}
           disabled={isPending}
         >
-          Reprovar
-        </Button>
+          <X size={14} /> Reprovar
+        </button>
+        <div style={{ flex: 1 }} />
+        <button
+          className="btn btn-ghost"
+          onClick={onClose}
+          disabled={isPending}
+        >
+          Cancelar
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={handleApprove}
+          disabled={isPending || !title.trim()}
+        >
+          <Check size={14} /> Aprovar
+        </button>
       </div>
-    </div>
+    </>
   );
 }

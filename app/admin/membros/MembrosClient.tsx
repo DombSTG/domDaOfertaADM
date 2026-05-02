@@ -11,6 +11,23 @@ type Membro = {
   id: string
   email: string
   createdAt: Date
+  approvedCount: number
+  rejectedCount: number
+}
+
+const AVATAR_COLORS = [
+  'oklch(0.55 0.18 290)',
+  'oklch(0.55 0.16 150)',
+  'oklch(0.55 0.18 25)',
+  'oklch(0.55 0.15 220)',
+  'oklch(0.6 0.15 60)',
+  'oklch(0.5 0.18 310)',
+]
+
+function avatarColor(email: string): string {
+  let hash = 0
+  for (const c of email) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
 
 export function MembrosClient({ membros }: { membros: Membro[] }) {
@@ -39,109 +56,129 @@ export function MembrosClient({ membros }: { membros: Membro[] }) {
   }, [state])
 
   return (
-    <div className="max-w-xl space-y-8">
-      {/* Lista de membros */}
-      <div>
-        <h2 className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-          Usuários cadastrados
-        </h2>
-        <div className="border border-gray-100 rounded-[10px] overflow-hidden">
-          {membros.length === 0 ? (
-            <p className="px-4 py-3 text-[13px] text-gray-400">Nenhum usuário cadastrado.</p>
-          ) : (
-            membros.map((m, i) => (
+    <div>
+      {/* Member grid */}
+      <div className="members-grid">
+        {membros.map((m) => (
+          <div className="member-card" key={m.id}>
+            <div className="member-head">
               <div
-                key={m.id}
-                className={`flex items-center justify-between px-4 py-3 ${
-                  i !== membros.length - 1 ? 'border-b border-gray-100' : ''
-                }`}
+                className="member-avatar"
+                style={{ background: avatarColor(m.email) }}
               >
-                <span className="text-[13px] text-gray-900">{m.email}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-gray-400">
-                    {new Date(m.createdAt).toLocaleDateString('pt-BR')}
-                  </span>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="p-1.5 rounded-[6px] text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
-                    title="Alterar senha"
-                  >
-                    <KeyRound size={14} />
-                  </button>
-                  {confirmDeleteId === m.id ? (
-                    <>
-                      <button
-                        onClick={() => handleDelete(m.id)}
-                        disabled={isDeleting}
-                        className="px-2 py-1 rounded-[6px] text-[11px] font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                      >
-                        {isDeleting ? '...' : 'Confirmar'}
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(null)}
-                        disabled={isDeleting}
-                        className="px-2 py-1 rounded-[6px] text-[11px] font-medium text-gray-400 hover:bg-gray-100 transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDeleteId(m.id)}
-                      className="p-1.5 rounded-[6px] text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                      title="Excluir usuário"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
+                {m.email[0].toUpperCase()}
               </div>
-            ))
-          )}
-        </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="member-name">{m.email.split('@')[0]}</span>
+                  <span className="member-role-badge admin">Admin</span>
+                </div>
+                <div className="member-email">{m.email}</div>
+              </div>
+            </div>
+
+            <div className="member-stats">
+              <div className="stat">
+                <div className="stat-value success tabular">{m.approvedCount}</div>
+                <div className="stat-label">Aprovadas</div>
+              </div>
+              <div className="stat">
+                <div className="stat-value danger tabular">{m.rejectedCount}</div>
+                <div className="stat-label">Rejeitadas</div>
+              </div>
+            </div>
+
+            <div className="member-foot">
+              <span>Entrou em {new Date(m.createdAt).toLocaleDateString('pt-BR')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                {confirmDeleteId === m.id ? (
+                  <div className="member-confirm-row">
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDelete(m.id)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? '...' : 'Confirmar'}
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setConfirmDeleteId(null)}
+                      disabled={isDeleting}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      className="icon-btn"
+                      title="Alterar senha"
+                      onClick={() => setIsModalOpen(true)}
+                      style={{ width: 28, height: 28 }}
+                    >
+                      <KeyRound size={13} />
+                    </button>
+                    <button
+                      className="icon-btn"
+                      title="Excluir usuário"
+                      onClick={() => setConfirmDeleteId(m.id)}
+                      style={{ width: 28, height: 28, color: 'var(--danger)' }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {membros.length === 0 && (
+          <div className="empty" style={{ gridColumn: '1 / -1' }}>
+            <div className="empty-title">Nenhum membro cadastrado.</div>
+          </div>
+        )}
       </div>
 
-      {/* Formulário de novo usuário */}
-      <div>
-        <h2 className="text-[12px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-          Novo usuário
-        </h2>
-        <form action={formAction} className="space-y-3">
-          <div className="space-y-1.5">
-            <label htmlFor="email" className="text-[13px] font-medium text-gray-700">
-              E-mail
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              placeholder="novo@email.com"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="password" className="text-[13px] font-medium text-gray-700">
-              Senha
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              className="w-full px-3 py-2 rounded-[8px] border border-gray-200 text-[13px] text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={pending}
-            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-medium rounded-[8px] transition-colors"
-          >
-            {pending ? 'Cadastrando...' : 'Cadastrar usuário'}
-          </button>
-        </form>
+      {/* New member form */}
+      <div style={{ padding: '0 24px 24px' }}>
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24 }}>
+          <div className="members-form-title">Novo usuário</div>
+          <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 400 }}>
+            <div className="field-group">
+              <label className="field-label" htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="field-input"
+                placeholder="novo@email.com"
+              />
+            </div>
+            <div className="field-group">
+              <label className="field-label" htmlFor="password">Senha</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={6}
+                className="field-input"
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            <div>
+              <button
+                type="submit"
+                disabled={pending}
+                className="btn btn-primary"
+              >
+                {pending ? 'Cadastrando...' : 'Cadastrar usuário'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       <ChangePasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

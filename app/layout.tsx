@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
-  variable: "--font-sans",
+  variable: "--font-ui",
   subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const interTight = Inter_Tight({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -19,8 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
-      <body className="h-full bg-white text-gray-900">
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
+    >
+      <body>
         {children}
         <Toaster richColors position="bottom-right" />
       </body>

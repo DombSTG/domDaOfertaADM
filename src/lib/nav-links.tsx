@@ -1,8 +1,18 @@
-export const navLinks: { href: string; label: string; labelFull: string; icon: React.ReactNode; mobileHidden?: boolean }[] = [
+export type NavLink = {
+  href: string
+  label: string
+  labelFull: string
+  icon: React.ReactNode
+  countKey?: 'pending' | 'approved' | 'rejected'
+  mobileHidden?: boolean
+}
+
+export const navLinks: NavLink[] = [
   {
     href: '/admin',
     label: 'Fila',
     labelFull: 'Fila de Aprovação',
+    countKey: 'pending',
     icon: (
       <svg className="h-[15px] w-[15px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.1 13.177a2.25 2.25 0 0 0-.1.661Z" />
@@ -13,6 +23,7 @@ export const navLinks: { href: string; label: string; labelFull: string; icon: R
     href: '/admin/aprovadas',
     label: 'Aprovadas',
     labelFull: 'Aprovadas',
+    countKey: 'approved',
     icon: (
       <svg className="h-[15px] w-[15px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -23,6 +34,7 @@ export const navLinks: { href: string; label: string; labelFull: string; icon: R
     href: '/admin/rejeitadas',
     label: 'Rejeitadas',
     labelFull: 'Rejeitadas',
+    countKey: 'rejected',
     icon: (
       <svg className="h-[15px] w-[15px] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />

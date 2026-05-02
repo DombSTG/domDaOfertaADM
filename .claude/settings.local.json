@@ -3,7 +3,12 @@
     "allow": [
       "Bash(npx shadcn@latest add card input textarea badge sonner)",
       "Bash(npx next:*)",
-      "Bash(xargs wc:*)"
+      "Bash(xargs wc:*)",
+      "Bash(Get-ChildItem -Path \"E:\\\\DEV\\\\domDaOfertaADM\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(start /B npx next dev --port 3001)",
+      "Bash(ping -n 3 127.0.0.1)",
+      "Bash(curl -s http://localhost:3001/admin)"
     ]
   }
 }
