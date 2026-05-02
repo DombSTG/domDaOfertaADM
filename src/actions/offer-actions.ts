@@ -90,6 +90,15 @@ export async function updateOfferAffiliateUrl(id: string, affiliateUrl: string) 
   revalidatePath('/')
 }
 
+export async function updateOfferImageUrl(id: string, imageUrl: string) {
+  await db
+    .update(offers)
+    .set({ imageUrl: imageUrl || null })
+    .where(eq(offers.id, id))
+
+  revalidatePath('/')
+}
+
 export async function rejectOffer(id: string) {
   const session = await getSession()
   await db

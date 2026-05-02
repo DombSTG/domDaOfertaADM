@@ -19,6 +19,7 @@ import {
   updateOfferPrice,
   updateOfferCurrentPrice,
   updateOfferAffiliateUrl,
+  updateOfferImageUrl,
   getPriceHistory,
 } from "@/src/actions/offer-actions";
 import type { Offer, PriceHistory } from "@/src/db/schema";
@@ -65,6 +66,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
   const [editedPrice, setEditedPrice] = useState(offer.oldPrice ?? "");
   const [editedCurrentPrice, setEditedCurrentPrice] = useState(offer.currentPrice ?? "");
   const [affiliateUrl, setAffiliateUrl] = useState(offer.affiliateUrl ?? "");
+  const [imageUrl, setImageUrl] = useState(offer.imageUrl ?? "");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<PriceHistory[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -76,6 +78,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
     setEditedPrice(offer.oldPrice ?? "");
     setEditedCurrentPrice(offer.currentPrice ?? "");
     setAffiliateUrl(offer.affiliateUrl ?? "");
+    setImageUrl(offer.imageUrl ?? "");
     setHistoryOpen(false);
     setHistoryLoaded(false);
     setHistory([]);
@@ -153,8 +156,8 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
         {/* Hero */}
         <div className="review-hero">
           <div className="review-img-wrapper" style={{ position: "relative" }}>
-            {offer.imageUrl && (
-              <Image src={offer.imageUrl} alt="" fill unoptimized={false} style={{ objectFit: "contain" }} />
+            {imageUrl && (
+              <Image src={imageUrl} alt="" fill unoptimized={false} style={{ objectFit: "contain" }} />
             )}
           </div>
           <div className="review-side">
@@ -323,6 +326,34 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
                 startTransition(async () => {
                   await updateOfferAffiliateUrl(offer.id, affiliateUrl);
                   toast.success("Link de afiliado atualizado!");
+                });
+              }}
+            >
+              Salvar
+            </button>
+          </div>
+        </div>
+
+        {/* URL da imagem */}
+        <div className="field-group">
+          <label className="field-label">URL da imagem</label>
+          <div className="field-action-row">
+            <input
+              className="field-input"
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 12.5, flex: 1 }}
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              disabled={isPending}
+              placeholder="https://..."
+            />
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  await updateOfferImageUrl(offer.id, imageUrl);
+                  toast.success("URL da imagem atualizada!");
                 });
               }}
             >
