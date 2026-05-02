@@ -1,6 +1,7 @@
 'use client'
 
 import { Check, X, Pencil } from 'lucide-react'
+import Image from 'next/image'
 import type { Offer } from '@/src/db/schema'
 import { memo, useTransition } from 'react'
 import { approveOffer, rejectOffer } from '@/src/actions/offer-actions'
@@ -75,11 +76,11 @@ export const OfferListItem = memo(function OfferListItem({
     >
       <span className={`offer-status ${offer.status}`} aria-hidden />
 
-      <div
-        className="offer-img"
-        style={offer.imageUrl ? { backgroundImage: `url('${offer.imageUrl}')` } : undefined}
-        aria-hidden
-      />
+      <div className="offer-img-wrapper" style={{ position: "relative" }} aria-hidden>
+        {offer.imageUrl && (
+          <Image src={offer.imageUrl} alt="" fill unoptimized={false} style={{ objectFit: "contain" }} />
+        )}
+      </div>
 
       <div className="offer-main">
         <div className="offer-title">{offer.title}</div>
@@ -96,7 +97,7 @@ export const OfferListItem = memo(function OfferListItem({
 
       <div className="offer-price-block">
         <div className="offer-price">R$ {fmtBRL(offer.currentPrice)}</div>
-        {offer.oldPrice && Number(offer.oldPrice) > Number(offer.currentPrice) && (
+        {offer.oldPrice && Number(offer.oldPrice) > 0 && (
           <div className="offer-price-original">R$ {fmtBRL(offer.oldPrice)}</div>
         )}
       </div>

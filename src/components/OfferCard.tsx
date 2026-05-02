@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import {
   ExternalLink,
@@ -151,10 +152,11 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
       <div className="drawer-body">
         {/* Hero */}
         <div className="review-hero">
-          <div
-            className="review-img"
-            style={offer.imageUrl ? { backgroundImage: `url('${offer.imageUrl}')` } : undefined}
-          />
+          <div className="review-img-wrapper" style={{ position: "relative" }}>
+            {offer.imageUrl && (
+              <Image src={offer.imageUrl} alt="" fill unoptimized={false} style={{ objectFit: "contain" }} />
+            )}
+          </div>
           <div className="review-side">
             <div className="review-meta">
               <span className="marketplace-chip" data-mp={mpKey || undefined}>
@@ -167,7 +169,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
               <span className="review-price-current">
                 R$ {fmtBRL(editedCurrentPrice || offer.currentPrice)}
               </span>
-              {editedPrice && Number(editedPrice) > Number(editedCurrentPrice) && (
+              {editedPrice && Number(editedPrice) > 0 && (
                 <span className="review-price-original">
                   R$ {fmtBRL(editedPrice)}
                 </span>

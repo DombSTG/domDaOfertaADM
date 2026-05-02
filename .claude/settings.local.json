@@ -8,7 +8,8 @@
       "Bash(Select-Object Name)",
       "Bash(start /B npx next dev --port 3001)",
       "Bash(ping -n 3 127.0.0.1)",
-      "Bash(curl -s http://localhost:3001/admin)"
+      "Bash(curl -s http://localhost:3001/admin)",
+      "PowerShell(Get-ChildItem E:\\\\DEV\\\\domDaOfertaADM | Where-Object { $_.Name -notmatch 'node_modules|\\\\.next' } | Select-Object Name)"
     ]
   }
 }
