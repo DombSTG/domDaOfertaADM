@@ -2,13 +2,13 @@ export const dynamic = 'force-dynamic'
 
 import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
-import { eq, count } from 'drizzle-orm'
+import { eq, count, isNull, and } from 'drizzle-orm'
 import { OfferPageShell } from '@/src/components/OfferPageShell'
 
 export default async function PendingPage() {
   const [pendingOffers, rows] = await Promise.all([
-    db.select().from(offers).where(eq(offers.status, 'pending')).orderBy(offers.createdAt),
-    db.select({ status: offers.status, n: count() }).from(offers).groupBy(offers.status),
+    db.select().from(offers).where(and(eq(offers.status, 'pending'), isNull(offers.deletedAt))).orderBy(offers.createdAt),
+    db.select({ status: offers.status, n: count() }).from(offers).where(isNull(offers.deletedAt)).groupBy(offers.status),
   ])
 
   const counts: Record<string, number> = { pending: 0, approved: 0, rejected: 0 }

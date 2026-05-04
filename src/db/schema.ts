@@ -14,6 +14,7 @@ export const offerStatusEnum = pgEnum("offer_status", [
   "pending",
   "approved",
   "rejected",
+  "deleted"
 ]);
 
 export const offers = pgTable("offers", {
@@ -35,6 +36,7 @@ export const offers = pgTable("offers", {
   reviews: integer("reviews"),
   approvedBy: uuid("approved_by").references(() => users.id, { onDelete: 'set null' }),
   rejectedBy: uuid("rejected_by").references(() => users.id, { onDelete: 'set null' }),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export type Offer = typeof offers.$inferSelect;

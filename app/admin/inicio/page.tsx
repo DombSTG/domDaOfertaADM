@@ -2,13 +2,14 @@ export const dynamic = 'force-dynamic'
 
 import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
-import { count } from 'drizzle-orm'
+import { count, isNull } from 'drizzle-orm'
 import { HomeView } from '@/src/components/HomeView'
 
 export default async function InicioPage() {
   const rows = await db
     .select({ status: offers.status, n: count() })
     .from(offers)
+    .where(isNull(offers.deletedAt))
     .groupBy(offers.status)
 
   const counts: Record<string, number> = { pending: 0, approved: 0, rejected: 0 }

@@ -109,6 +109,16 @@ export async function rejectOffer(id: string) {
   revalidatePath('/')
 }
 
+export async function softDeleteOffer(id: string) {
+  const session = await getSession() // Opcional, caso queira garantir autenticação ou salvar quem deletou
+  await db
+    .update(offers)
+    .set({ deletedAt: new Date(), status: 'deleted' })
+    .where(eq(offers.id, id))
+
+  revalidatePath('/')
+}
+
 export async function getPriceHistory(offerId: string) {
   return db
     .select()

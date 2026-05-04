@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { db } from '@/src/db/db'
 import { users, offers } from '@/src/db/schema'
-import { count } from 'drizzle-orm'
+import { count, isNull } from 'drizzle-orm'
 import { MembrosClient } from './MembrosClient'
 
 export default async function MembrosPage() {
@@ -18,11 +18,13 @@ export default async function MembrosPage() {
   const approvedCounts = await db
     .select({ userId: offers.approvedBy, n: count() })
     .from(offers)
+    .where(isNull(offers.deletedAt))
     .groupBy(offers.approvedBy)
 
   const rejectedCounts = await db
     .select({ userId: offers.rejectedBy, n: count() })
     .from(offers)
+    .where(isNull(offers.deletedAt))
     .groupBy(offers.rejectedBy)
 
   const approvedMap = Object.fromEntries(

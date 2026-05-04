@@ -1,12 +1,14 @@
 export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
 import { offers } from '@/src/db/schema'
+import { isNull } from 'drizzle-orm'
 import { OfferListPage } from '@/src/components/OfferListPage'
 
 export default async function Todos() {
   const allOffers = await db
     .select()
     .from(offers)
+    .where(isNull(offers.deletedAt))
     .orderBy(offers.createdAt)
 
   return (

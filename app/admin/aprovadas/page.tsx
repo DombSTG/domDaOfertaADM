@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
 import { offers, users } from '@/src/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import { OfferPageShell } from '@/src/components/OfferPageShell'
 
 export default async function Aprovadas() {
@@ -29,7 +29,7 @@ export default async function Aprovadas() {
     })
     .from(offers)
     .leftJoin(users, eq(offers.approvedBy, users.id))
-    .where(eq(offers.status, 'approved'))
+    .where(and(eq(offers.status, 'approved'), isNull(offers.deletedAt)))
     .orderBy(offers.createdAt)
 
   return (

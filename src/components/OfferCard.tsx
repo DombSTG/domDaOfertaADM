@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
@@ -12,10 +13,12 @@ import {
   ArrowRight,
   X,
   Check,
+  Trash,
 } from "lucide-react";
 import {
   approveOffer,
   rejectOffer,
+  softDeleteOffer,
   updateOfferPrice,
   updateOfferCurrentPrice,
   updateOfferAffiliateUrl,
@@ -70,7 +73,11 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<PriceHistory[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     setTitle(offer.title);
@@ -112,6 +119,17 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
     });
   };
 
+  const handleDelete = () => setShowDeleteConfirm(true);
+
+  const handleDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    startTransition(async () => {
+      await softDeleteOffer(offer.id);
+      toast.success("Oferta apagada com sucesso.", { description: offer.title });
+      onClose();
+    });
+  };
+
   const pct =
     editedPrice && Number(editedPrice) > Number(editedCurrentPrice)
       ? Math.round((1 - Number(editedCurrentPrice) / Number(editedPrice)) * 100)
@@ -134,6 +152,15 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
           </div>
         </div>
         <div className="drawer-nav-btns">
+          <button
+            className="icon-btn"
+            onClick={handleDelete}
+            disabled={isPending}
+            aria-label="Excluir"
+            title="Excluir Oferta"
+          >
+            <Trash size={16} className="text-red-500" />
+          </button>
           <button
             className="icon-btn"
             onClick={onPrev}
@@ -430,6 +457,59 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
           <Check size={14} /> Aprovar
         </button>
       </div>
+
+      {mounted && createPortal(
+        <>
+          <div
+            className={`drawer-overlay${showDeleteConfirm ? " open" : ""}`}
+            style={{ zIndex: 200 }}
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div
+            className={`drawer modal-mode${showDeleteConfirm ? " open" : ""}`}
+            style={{ zIndex: 201, willChange: "auto" }}
+          >
+            <div className="drawer-header">
+              <button
+                className="icon-btn"
+                onClick={() => setShowDeleteConfirm(false)}
+                aria-label="Cancelar"
+              >
+                <X size={16} />
+              </button>
+              <div className="drawer-title-block">
+                <div className="drawer-eyebrow">Confirmação</div>
+                <div className="drawer-title">Apagar oferta?</div>
+              </div>
+            </div>
+            <div className="drawer-body">
+              <p style={{ fontSize: 13.5, color: "var(--text-soft)", lineHeight: 1.6 }}>
+                Esta ação não pode ser desfeita. A oferta{" "}
+                <strong style={{ color: "var(--text)" }}>{offer.title}</strong> será
+                removida permanentemente.
+              </p>
+            </div>
+            <div className="drawer-footer">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isPending}
+              >
+                Cancelar
+              </button>
+              <div style={{ flex: 1 }} />
+              <button
+                className="btn btn-danger"
+                onClick={handleDeleteConfirm}
+                disabled={isPending}
+              >
+                <Trash size={14} /> Apagar oferta
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
     </>
   );
 }

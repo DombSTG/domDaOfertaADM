@@ -4,7 +4,7 @@ import { MobileAddButton } from "@/src/components/MobileAddButton";
 import { ThemeProvider } from "@/src/components/ThemeProvider";
 import { db } from "@/src/db/db";
 import { offers } from "@/src/db/schema";
-import { count } from "drizzle-orm";
+import { count, isNull } from "drizzle-orm";
 import { getSession } from "@/src/actions/auth-actions";
 
 export default async function AdminLayout({
@@ -13,7 +13,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const [rows, session] = await Promise.all([
-    db.select({ status: offers.status, n: count() }).from(offers).groupBy(offers.status),
+    db.select({ status: offers.status, n: count() }).from(offers).where(isNull(offers.deletedAt)).groupBy(offers.status),
     getSession(),
   ]);
 

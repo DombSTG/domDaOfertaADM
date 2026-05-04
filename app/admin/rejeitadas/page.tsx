@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { db } from '@/src/db/db'
 import { offers, users } from '@/src/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import { OfferPageShell } from '@/src/components/OfferPageShell'
 
 export default async function Rejeitadas() {
@@ -29,7 +29,7 @@ export default async function Rejeitadas() {
     })
     .from(offers)
     .leftJoin(users, eq(offers.rejectedBy, users.id))
-    .where(eq(offers.status, 'rejected'))
+    .where(and(eq(offers.status, 'rejected'), isNull(offers.deletedAt)))
     .orderBy(offers.createdAt)
 
   return (
