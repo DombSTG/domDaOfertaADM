@@ -13,7 +13,10 @@
       "Bash(Get-ChildItem -Path \"E:\\\\DEV\\\\domdaofertaadm\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
       "PowerShell(Get-Content \"E:\\\\DEV\\\\domDaOfertaADM\\\\.next\\\\dev\\\\logs\\\\next-development.log\" | Select-Object -Last 30 | ConvertFrom-Json -ErrorAction SilentlyContinue | Where-Object { $_.level -eq \"ERROR\" -or $_.message -match \"inicio|HomeView|HomeCharts|home-layout\" })",
-      "PowerShell(Get-ChildItem \"E:\\\\DEV\\\\domDaOfertaADM\\\\.next\" -Recurse | Where-Object { $_.Extension -eq \".css\" } | Sort-Object LastWriteTime -Descending | Select-Object FullName | Select-Object -First 5)"
+      "PowerShell(Get-ChildItem \"E:\\\\DEV\\\\domDaOfertaADM\\\\.next\" -Recurse | Where-Object { $_.Extension -eq \".css\" } | Sort-Object LastWriteTime -Descending | Select-Object FullName | Select-Object -First 5)",
+      "Bash(Get-ChildItem -Path \"E:\\\\DEV\\\\domDaOfertaADM\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }

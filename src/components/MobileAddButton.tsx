@@ -10,7 +10,8 @@ export function MobileAddButton() {
     <>
       <button
         onClick={() => setDialogOpen(true)}
-        className="md:hidden fixed bottom-[72px] right-4 z-50 h-12 w-12 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-transform"
+        className="md:hidden fixed bottom-[72px] right-4 z-50 h-12 w-12 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+        style={{ background: 'var(--accent)', color: 'white', boxShadow: 'var(--shadow-md)' }}
         aria-label="Adicionar oferta"
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

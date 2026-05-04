@@ -19,7 +19,13 @@ export function BottomNav({ counts = {} }: BottomNavProps) {
   return (
     <>
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+        style={{
+          background: 'var(--bg-elev)',
+          borderTop: '1px solid var(--border)',
+        }}
+      >
         <div className="grid grid-cols-5">
           {mobileLinks.map((link) => {
             const isActive = pathname === link.href
@@ -29,16 +35,19 @@ export function BottomNav({ counts = {} }: BottomNavProps) {
               <a
                 key={link.href}
                 href={link.href}
-                className={`relative flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
-                  isActive ? 'text-blue-600' : 'text-gray-400'
-                }`}
+                className="relative flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors"
+                style={{ color: isActive ? 'var(--accent)' : 'var(--text-muted)' }}
               >
-                <span className={`relative ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>
+                <span className="relative">
                   {link.icon}
                   {count > 0 && (
-                    <span className={`absolute -top-1 -right-1.5 text-[9px] font-bold px-1 py-px rounded-full leading-none ${
-                      isPending ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'
-                    }`}>
+                    <span
+                      className="absolute -top-1 -right-1.5 text-[9px] font-bold px-1 py-px rounded-full leading-none"
+                      style={{
+                        background: isPending ? 'var(--danger)' : 'var(--text-faint)',
+                        color: 'white',
+                      }}
+                    >
                       {count > 99 ? '99+' : count}
                     </span>
                   )}
@@ -49,7 +58,8 @@ export function BottomNav({ counts = {} }: BottomNavProps) {
           })}
           <button
             onClick={() => setDrawerOpen(true)}
-            className="flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-gray-400"
+            className="flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium"
+            style={{ color: 'var(--text-muted)' }}
           >
             <Menu size={20} />
             Menu

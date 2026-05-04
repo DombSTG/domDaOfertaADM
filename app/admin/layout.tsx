@@ -1,4 +1,6 @@
 import { SidebarNav } from "@/src/components/SidebarNav";
+import { BottomNav } from "@/src/components/BottomNav";
+import { MobileAddButton } from "@/src/components/MobileAddButton";
 import { ThemeProvider } from "@/src/components/ThemeProvider";
 import { db } from "@/src/db/db";
 import { offers } from "@/src/db/schema";
@@ -24,6 +26,8 @@ export default async function AdminLayout({
         <SidebarNav counts={counts} userEmail={String(session?.email ?? '')} />
         <div className="main">{children}</div>
       </div>
+      <BottomNav counts={counts} />
+      <MobileAddButton />
     </ThemeProvider>
   );
 }

@@ -56,11 +56,14 @@ export function OfferListPage({
     let list = offers
     if (query.trim()) {
       const q = query.trim().toLowerCase()
-      list = list.filter(
-        (o) =>
+      list = list.filter((o) => {
+        const productCode = o.originalUrl.split('/').filter(Boolean).pop() ?? ''
+        return (
           o.title.toLowerCase().includes(q) ||
-          o.store.toLowerCase().includes(q)
-      )
+          o.store.toLowerCase().includes(q) ||
+          productCode.toLowerCase().includes(q)
+        )
+      })
     }
     if (marketFilter !== 'all') {
       list = list.filter((o) => storeToMp(o.store) === marketFilter)

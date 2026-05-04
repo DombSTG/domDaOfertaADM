@@ -24,7 +24,6 @@ export function Topbar({ title, meta, query, setQuery }: TopbarProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar oferta..."
           />
-          <span className="kbd">⌘K</span>
         </div>
         <button className="icon-btn" aria-label="Notificações">
           <Bell size={16} />

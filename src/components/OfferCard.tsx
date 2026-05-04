@@ -94,11 +94,13 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
     }
   }, [historyOpen, historyLoaded, offer.id]);
 
+  const goNext = () => (hasNext && onNext ? onNext() : onClose());
+
   const handleApprove = () => {
     startTransition(async () => {
       await approveOffer(offer.id, title, copy);
       toast.success("Oferta aprovada!", { description: title });
-      onClose();
+      goNext();
     });
   };
 
@@ -415,7 +417,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
         <div style={{ flex: 1 }} />
         <button
           className="btn btn-ghost"
-          onClick={onClose}
+          onClick={goNext}
           disabled={isPending}
         >
           Cancelar
