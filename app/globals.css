@@ -606,15 +606,17 @@ input, textarea, select {
 .drawer.open { transform: translateX(0); pointer-events: auto; }
 
 .drawer.modal-mode {
-  position: fixed; top: 50%; left: 50%; right: auto; bottom: auto;
-  transform: translate(-50%, -50%) scale(0.96);
+  position: fixed; inset: 0; margin: auto; right: 0; bottom: 0;
+  transform: none;
+  will-change: auto;
   width: min(560px, 92vw); max-height: 88vh;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   opacity: 0;
   overflow: hidden;
+  transition: opacity 0.2s;
 }
-.drawer.modal-mode.open { transform: translate(-50%, -50%) scale(1); opacity: 1; transition: transform 0.2s, opacity 0.2s; }
+.drawer.modal-mode.open { opacity: 1; pointer-events: auto; }
 
 .drawer-header {
   display: flex; align-items: center; gap: 10px;

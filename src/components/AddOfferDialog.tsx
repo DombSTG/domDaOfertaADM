@@ -6,6 +6,7 @@ import { X } from 'lucide-react'
 import { createOffer } from '@/src/actions/offer-actions'
 
 const STORES = ['Magazine Luiza', 'Shopee', 'Mercado Livre', 'Amazon', 'Outro']
+const CATEGORIES = ['Eletrônicos', 'Informática', 'Games', 'Casa & Cozinha', 'Moda & Beleza', 'Livros', 'Saúde e Bem-Estar', 'Outros']
 
 interface AddOfferDialogProps {
   open: boolean
@@ -176,13 +177,19 @@ export function AddOfferDialog({ open, onClose }: AddOfferDialogProps) {
             {/* Categoria */}
             <div className="field-group">
               <label className="field-label">Categoria <span style={{ textTransform: 'none', fontWeight: 400, color: 'var(--text-faint)' }}>(opcional)</span></label>
-              <input
-                className="field-input"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="ex: Eletrônicos"
-                disabled={isPending}
-              />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {CATEGORIES.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCategory(category === c ? '' : c)}
+                    className={`chip${category === c ? ' active' : ''}`}
+                    disabled={isPending}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
           </form>
         </div>
