@@ -115,7 +115,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
     startTransition(async () => {
       await rejectOffer(offer.id);
       toast.info("Oferta descartada.", { description: offer.title });
-      onClose();
+      goNext();
     });
   };
 
@@ -282,33 +282,6 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
         {/* Preços */}
         <div className="field-row">
           <div className="field-group">
-            <label className="field-label">Preço original</label>
-            <div className="field-action-row">
-              <div className="input-with-prefix" style={{ flex: 1 }}>
-                <span className="prefix">R$</span>
-                <input
-                  className="field-input"
-                  value={editedPrice}
-                  onChange={(e) => setEditedPrice(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                disabled={isPending}
-                onClick={() => {
-                  startTransition(async () => {
-                    await updateOfferPrice(offer.id, editedPrice);
-                    toast.success("Preço atualizado!");
-                  });
-                }}
-              >
-                Salvar
-              </button>
-            </div>
-          </div>
-          <div className="field-group">
             <label className="field-label">Preço da oferta</label>
             <div className="field-action-row">
               <div className="input-with-prefix" style={{ flex: 1 }}>
@@ -327,6 +300,33 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
                 onClick={() => {
                   startTransition(async () => {
                     await updateOfferCurrentPrice(offer.id, editedCurrentPrice);
+                    toast.success("Preço atualizado!");
+                  });
+                }}
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Preço original</label>
+            <div className="field-action-row">
+              <div className="input-with-prefix" style={{ flex: 1 }}>
+                <span className="prefix">R$</span>
+                <input
+                  className="field-input"
+                  value={editedPrice}
+                  onChange={(e) => setEditedPrice(e.target.value)}
+                  disabled={isPending}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                disabled={isPending}
+                onClick={() => {
+                  startTransition(async () => {
+                    await updateOfferPrice(offer.id, editedPrice);
                     toast.success("Preço atualizado!");
                   });
                 }}

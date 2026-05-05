@@ -50,7 +50,7 @@ export function OfferListPage({
   filterLabel,
 }: OfferListPageProps) {
   const [marketFilter, setMarketFilter] = useState('all')
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     let list = offers
@@ -71,12 +71,23 @@ export function OfferListPage({
     return list
   }, [offers, query, marketFilter])
 
-  const selected = selectedIndex !== null ? filtered[selectedIndex] ?? null : null
+  const selectedIndex = selectedId !== null ? filtered.findIndex((o) => o.id === selectedId) : -1
+  const selected = selectedIndex >= 0 ? filtered[selectedIndex] : null
 
-  const handleSelect = useCallback((index: number) => setSelectedIndex(index), [])
-  const handleClose = useCallback(() => setSelectedIndex(null), [])
-  const handlePrev = useCallback(() => setSelectedIndex((i) => (i !== null ? i - 1 : null)), [])
-  const handleNext = useCallback(() => setSelectedIndex((i) => (i !== null ? i + 1 : null)), [])
+  const handleSelect = useCallback((index: number) => setSelectedId(filtered[index]?.id ?? null), [filtered])
+  const handleClose = useCallback(() => setSelectedId(null), [])
+  const handlePrev = useCallback(() => {
+    setSelectedId((id) => {
+      const idx = filtered.findIndex((o) => o.id === id)
+      return idx > 0 ? filtered[idx - 1].id : id
+    })
+  }, [filtered])
+  const handleNext = useCallback(() => {
+    setSelectedId((id) => {
+      const idx = filtered.findIndex((o) => o.id === id)
+      return idx >= 0 && idx < filtered.length - 1 ? filtered[idx + 1].id : id
+    })
+  }, [filtered])
 
   const densityLabel =
     density === 'compact' ? 'Compacto' : density === 'cozy' ? 'Confortável' : 'Normal'
@@ -142,7 +153,7 @@ export function OfferListPage({
               offer={offer}
               density={density}
               index={index}
-              isSelected={selectedIndex === index}
+              isSelected={offer.id === selectedId}
               onSelect={handleSelect}
             />
           ))}
@@ -153,8 +164,8 @@ export function OfferListPage({
       <OfferDrawer
         offer={selected}
         onClose={handleClose}
-        hasPrev={selectedIndex !== null && selectedIndex > 0}
-        hasNext={selectedIndex !== null && selectedIndex < filtered.length - 1}
+        hasPrev={selectedIndex > 0}
+        hasNext={selectedIndex >= 0 && selectedIndex < filtered.length - 1}
         onPrev={handlePrev}
         onNext={handleNext}
       />
