@@ -28,6 +28,8 @@ export async function sendTelegramMessage(data: TelegramMessageData) {
     message += `${data.copyText}\n\n`;
   }
 
+  message += `<a href="${data.url}">${data.url}</a>\n\n`;
+
   const replyMarkup = {
     inline_keyboard: [[{ text: "🛒 Ver oferta", url: data.url }]]
   };
