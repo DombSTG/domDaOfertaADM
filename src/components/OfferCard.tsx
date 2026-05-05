@@ -239,11 +239,13 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
         {/* Título */}
         <div className="field-group">
           <label className="field-label">Título</label>
-          <input
-            className="field-input"
+          <textarea
+            className="field-textarea"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isPending}
+            rows={2}
+            style={{ resize: "vertical" }}
           />
         </div>
 
