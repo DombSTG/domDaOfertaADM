@@ -25,6 +25,7 @@ export default async function Rejeitadas() {
       reviews: offers.reviews,
       approvedBy: offers.approvedBy,
       rejectedBy: offers.rejectedBy,
+      deletedAt: offers.deletedAt,
       userEmail: users.email,
     })
     .from(offers)
