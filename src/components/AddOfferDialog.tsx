@@ -4,9 +4,9 @@ import { useState, useTransition, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { X } from 'lucide-react'
 import { createOffer } from '@/src/actions/offer-actions'
+import { CATEGORIES } from '@/src/lib/categories'
 
 const STORES = ['Magazine Luiza', 'Shopee', 'Mercado Livre', 'Amazon', 'Outro']
-const CATEGORIES = ['Eletrônicos', 'Informática', 'Games', 'Casa & Cozinha', 'Moda & Beleza', 'Livros', 'Saúde e Bem-Estar', 'Outros']
 
 interface AddOfferDialogProps {
   open: boolean

@@ -23,8 +23,10 @@ import {
   updateOfferCurrentPrice,
   updateOfferAffiliateUrl,
   updateOfferImageUrl,
+  updateOfferCategory,
   getPriceHistory,
 } from "@/src/actions/offer-actions";
+import { CATEGORIES } from "@/src/lib/categories";
 import type { Offer, PriceHistory } from "@/src/db/schema";
 
 interface OfferCardProps {
@@ -70,6 +72,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
   const [editedCurrentPrice, setEditedCurrentPrice] = useState(offer.currentPrice ?? "");
   const [affiliateUrl, setAffiliateUrl] = useState(offer.affiliateUrl ?? "");
   const [imageUrl, setImageUrl] = useState(offer.imageUrl ?? "");
+  const [selectedCategory, setSelectedCategory] = useState(offer.category ?? "");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<PriceHistory[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -86,6 +89,7 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
     setEditedCurrentPrice(offer.currentPrice ?? "");
     setAffiliateUrl(offer.affiliateUrl ?? "");
     setImageUrl(offer.imageUrl ?? "");
+    setSelectedCategory(offer.category ?? "");
     setHistoryOpen(false);
     setHistoryLoaded(false);
     setHistory([]);
@@ -277,6 +281,39 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
               rows={4}
             />
           )}
+        </div>
+
+        {/* Categoria */}
+        <div className="field-group">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label className="field-label">Categoria</label>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              disabled={isPending || selectedCategory === (offer.category ?? "")}
+              onClick={() => {
+                startTransition(async () => {
+                  await updateOfferCategory(offer.id, selectedCategory);
+                  toast.success("Categoria atualizada!");
+                });
+              }}
+            >
+              Salvar
+            </button>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`chip${selectedCategory === cat ? " active" : ""}`}
+                disabled={isPending}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Preços */}

@@ -16,7 +16,8 @@
       "PowerShell(Get-ChildItem \"E:\\\\DEV\\\\domDaOfertaADM\\\\.next\" -Recurse | Where-Object { $_.Extension -eq \".css\" } | Sort-Object LastWriteTime -Descending | Select-Object FullName | Select-Object -First 5)",
       "Bash(Get-ChildItem -Path \"E:\\\\DEV\\\\domDaOfertaADM\" -Recurse -Directory)",
       "Bash(Select-Object -First 20)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Get-ChildItem -Path \"E:\\\\DEV\\\\domDaOfertaADM\" -Recurse -Filter \"*.css\")"
     ]
   }
 }

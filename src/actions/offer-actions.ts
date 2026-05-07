@@ -119,6 +119,11 @@ export async function softDeleteOffer(id: string) {
   revalidatePath('/')
 }
 
+export async function updateOfferCategory(id: string, category: string) {
+  await db.update(offers).set({ category }).where(eq(offers.id, id))
+  revalidatePath('/')
+}
+
 export async function getPriceHistory(offerId: string) {
   return db
     .select()
