@@ -451,8 +451,8 @@ export function OfferCard({ offer, onClose, onPrev, onNext, hasPrev, hasNext }: 
                   <thead>
                     <tr>
                       <th>Data</th>
-                      <th>Atual</th>
-                      <th>Anterior</th>
+                      <th>Preço da Oferta</th>
+                      <th>Preço Original</th>
                     </tr>
                   </thead>
                   <tbody>
